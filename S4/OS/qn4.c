@@ -1,7 +1,7 @@
-#include&lt;stdio.h&gt;
-#include&lt;sys/types.h&gt;
-#include&lt;unistd.h&gt;
-#include&lt;sys/wait.h&gt;
+#include<stdio.h>
+#include<sys/types.h>
+#include<unistd.h>
+#include<sys/wait.h>
 void main()
 {
     pid_t pid=fork();
