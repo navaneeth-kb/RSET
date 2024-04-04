@@ -1,7 +1,7 @@
-#include&lt;stdio.h&gt;
-#include&lt;stdlib.h&gt;
-#include&lt;fcntl.h&gt;
-#include&lt;unistd.h&gt;
+#include<stdio.h>
+#include<stdlib.h>
+#include<fcntl.h>
+#include<unistd.h>
 #define BUF_SIZE 4096
 void main()
 {
