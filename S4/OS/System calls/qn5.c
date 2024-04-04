@@ -1,8 +1,8 @@
-#include&lt;stdio.h&gt;
-#include&lt;sys/stat.h&gt;
-#include&lt;unistd.h&gt;
-#include&lt;stdlib.h&gt;
-#include&lt;sys/wait.h&gt;
+#include<stdio.h>
+#include<stdlib.h>
+#include<sys/types.h>
+#include<unistd.h>
+#include<sys/wait.h>
 int main(int argc,char *argv[])
 {
     if(argc!=2)
