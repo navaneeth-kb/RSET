@@ -1,6 +1,6 @@
-#include&lt;stdio.h&gt;
-#include&lt;sys/stat.h&gt;
-#include&lt;dirent.h&gt;
+#include<stdio.h>
+#include<sys/stat.h>
+#include<dirent.h>
 void main()
 {
     DIR *dir;
