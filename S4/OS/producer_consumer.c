@@ -14,7 +14,7 @@ sem_t mutex,empty,full;
 void *producer(void *arg)
 {
     int item;
-    item=rand();
+    item=rand()%100;
     sem_wait(&empty);
     sem_wait(&mutex);
     buffer[in]=item;
