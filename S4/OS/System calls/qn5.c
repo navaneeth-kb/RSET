@@ -7,17 +7,17 @@ int main(int argc,char *argv[])
 {
     if(argc!=2)
     {
-        printf(&quot;usage %s &lt;file or directory&gt;\n&quot;,argv[0]);
+        printf("usage %s <file or directory>;\n",argv[0]);
         return 1;
     }
     struct stat filestat;
     if(stat(argv[1],&amp;filestat)==-1)
     {
-        perror(&quot;Error in stat&quot;);
+        perror("Error in stat");
         return 1;
     }
-    printf(&quot;File name:%s\n&quot;,argv[1]);
-    printf(&quot;File size:%ld bytes\n&quot;,filestat.st_size);
-    printf(&quot;Blocks allocated:%ld\n&quot;,filestat.st_blocks);
+    printf("File name:%s\n",argv[1]);
+    printf("File size:%ld bytes\n",filestat.st_size);
+    printf("Blocks allocated:%ld\n",filestat.st_blocks);
     return 0;
 }
