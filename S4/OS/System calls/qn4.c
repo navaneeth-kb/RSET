@@ -7,15 +7,15 @@ void main()
     pid_t pid=fork();
     if(pid==0)
     {
-       execlp(&quot;/bin/pwd&quot;,&quot;pwd&quot;,NULL);
+       execlp("/bin/pwd","pwd",NULL);
     }
-    else if(pid&gt;0)
+    else if(pid>0)
     {
         wait(NULL);
-        printf(&quot;Success\n&quot;);
+        printf("Success\n");
     }
     else
     {
-        fprintf(stderr,&quot;Fork Failed&quot;);
+        fprintf(stderr,"Fork Failed");
     }
 }
