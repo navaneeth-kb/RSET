@@ -7,10 +7,10 @@ void main()
 {
     int n,f1,f2;
     char file1[100],file2[100];
-    printf(&quot;Name of source file:\n&quot;);
-    scanf(&quot;%s&quot;,file1);
-    printf(&quot;Name of destination file:\n&quot;);
-    scanf(&quot;%s&quot;,file2);
+    printf("Name of source file:\n");
+    scanf("%s",file1);
+    printf("Name of destination file:\n");
+    scanf("%s",file2);
     char buff[BUF_SIZE];
     f1=open(file1,O_RDONLY);
     f2=open(file2,O_WRONLY |O_CREAT,S_IWUSR | S_IRUSR);
