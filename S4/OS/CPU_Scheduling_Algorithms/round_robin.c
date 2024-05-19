@@ -14,124 +14,103 @@ struct Process {
     int completion_time;
 };
 
-// Function prototypes
-void bubble_sort(struct Process processes[], int n);
-void round_robin(struct Process processes[], int n, int quantum);
-float find_avg(struct Process processes[], int n);
-float find_avgt(struct Process processes[], int n);
-
-int main()
-{
-    struct Process processes[MAX_PROCESSES];
+int main() {
+    struct Process p[MAX_PROCESSES];
     int n, quantum;
 
-    // Prompt user for number of processes
+    // Prompt user for number of p
     printf("Enter the number of processes: ");
     scanf("%d", &n);
 
     //reading processes
-    int i;
-	for(i=0; i<n; i++) 
-    {
-		printf("Enter the ID of process%d: ", i);
-		scanf("%d", &processes[i].pid);
-		printf("Enter the Arrival Time of process%d: ", i);
-		scanf("%d", &processes[i].arrival_time);
-		printf("Enter the Burst Time of process%d: ", i);
-		scanf("%d", &processes[i].burst_time);
-		printf("\n");
-		processes[i].remaining_burst_time = processes[i].burst_time;
-	}
+    for(int i=0; i<n; i++) {
+        printf("Enter the ID of process%d: ", i);
+        scanf("%d", &p[i].pid);
+        printf("Enter the Arrival Time of process%d: ", i);
+        scanf("%d", &p[i].arrival_time);
+        printf("Enter the Burst Time of process%d: ", i);
+        scanf("%d", &p[i].burst_time);
+        printf("\n");
+        p[i].remaining_burst_time = p[i].burst_time;
+    }
 
     // Prompt user for quantum time
     printf("Enter quantum time: ");
     scanf("%d", &quantum);
 
-    // Sort processes based on arrival time
-    bubble_sort(processes, n);
-
-    // Apply Round Robin scheduling algorithm
-    round_robin(processes, n, quantum);
-
-    // Print process details
-    printf("\nProcess Details:\n");
-    printf("PID\tArrival Time\tBurst Time\tWaiting Time\tTurnaround Time\n");
-    for (int i = 0; i < n; i++) 
+    // Bubble sort processes based on arrival time
+    for (int i = 0; i < n - 1; i++)
     {
-        printf("%d\t%d\t\t%d\t\t%d\t\t%d\n", processes[i].pid, processes[i].arrival_time,
-               processes[i].burst_time, processes[i].waiting_time, processes[i].turnaround_time);
-    }
-
-    // Calculate average waiting time
-    float avg_waiting_time = find_avg(processes, n);
-    printf("\nAverage Waiting Time: %.2f\n", avg_waiting_time);
-    
-    // Calculate average turnaround time
-    float avg_turnaround_time = find_avgt(processes, n);
-    printf("\nAverage Turnaround Time: %.2f\n", avg_turnaround_time);
-    
-
-    return 0;
-}
-
-// Bubble sort function to sort processes based on arrival time
-void bubble_sort(struct Process processes[], int n) 
-{
-    for (int i = 0; i < n - 1; i++) 
-    {
-        for (int j = 0; j < n - i - 1; j++) 
+        for (int j = 0; j < n - i - 1; j++)
         {
-            if (processes[j].arrival_time > processes[j + 1].arrival_time) 
+            if (p[j].arrival_time > p[j + 1].arrival_time)
             {
-                struct Process temp = processes[j];
-                processes[j] = processes[j + 1];
-                processes[j + 1] = temp;
+                struct Process temp = p[j];
+                p[j] = p[j + 1];
+                p[j + 1] = temp;
             }
         }
     }
-}
 
-// Round Robin scheduling algorithm
-void round_robin(struct Process processes[], int n, int quantum) {
+    // Round Robin scheduling algorithm
     int remaining_processes = n;
     int current_time = 0;
 
-    while (remaining_processes > 0) 
+    while (remaining_processes > 0)
     {
-        for (int i = 0; i < n; i++) 
+        for (int i = 0; i < n; i++)
         {
-            if (processes[i].remaining_burst_time > 0) 
+            if (p[i].remaining_burst_time > 0)
             {
-                int execute_time = (processes[i].remaining_burst_time < quantum) ? processes[i].remaining_burst_time : quantum;
-                current_time += execute_time;
-                processes[i].remaining_burst_time -= execute_time;
-
-                if (processes[i].remaining_burst_time == 0) 
+                int execute_time;
+                if(p[i].remaining_burst_time < quantum)
                 {
-                    processes[i].completion_time = current_time;
-                    processes[i].turnaround_time = current_time - processes[i].arrival_time;
-                    processes[i].waiting_time = processes[i].turnaround_time - processes[i].burst_time;
+                    execute_time=p[i].remaining_burst_time;
+                }
+                else
+                {
+                    execute_time=quantum;
+                }
+                current_time += execute_time;
+                p[i].remaining_burst_time -= execute_time;
+
+                if (p[i].remaining_burst_time == 0)
+                {
+                    p[i].completion_time = current_time;
+                    p[i].turnaround_time = current_time - p[i].arrival_time;
+                    p[i].waiting_time = p[i].turnaround_time - p[i].burst_time;
                     remaining_processes--;
                 }
             }
         }
     }
-}
 
-// Function to find average waiting time
-float find_avg(struct Process processes[], int n) {
+    // Print process details
+    printf("\nProcess Details:\n");
+    printf("PID\tArrival Time\tBurst Time\tWaiting Time\tTurnaround Time\n");
+    for (int i = 0; i < n; i++)
+    {
+        printf("%d\t%d\t\t%d\t\t%d\t\t%d\n", p[i].pid, p[i].arrival_time,
+               p[i].burst_time, p[i].waiting_time, p[i].turnaround_time);
+    }
+
+    // Calculate average waiting time
     float total_waiting_time = 0;
-    for (int i = 0; i < n; i++) {
-        total_waiting_time += processes[i].waiting_time;
+    for (int i = 0; i < n; i++)
+    {
+        total_waiting_time += p[i].waiting_time;
     }
-    return total_waiting_time / n;
-}
+    float avg_waiting_time = total_waiting_time / n;
+    printf("\nAverage Waiting Time: %.2f\n", avg_waiting_time);
 
-// Function to find average turnaround time
-float find_avgt(struct Process processes[], int n) {
+    // Calculate average turnaround time
     float total_turnaround_time = 0;
-    for (int i = 0; i < n; i++) {
-        total_turnaround_time += processes[i].turnaround_time;
+    for (int i = 0; i < n; i++)
+    {
+        total_turnaround_time += p[i].turnaround_time;
     }
-    return total_turnaround_time / n;
+    float avg_turnaround_time = total_turnaround_time / n;
+    printf("\nAverage Turnaround Time: %.2f\n", avg_turnaround_time);
+
+    return 0;
 }
