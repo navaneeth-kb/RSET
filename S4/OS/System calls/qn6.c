@@ -5,15 +5,15 @@ void main()
 {
     DIR *dir;
     struct dirent *entry;
-    dir=opendir(&quot;.&quot;);
+    dir=opendir(".");
     if(dir==NULL)
     {
-        printf(&quot;Error opening directory&quot;);
+        printf("Error opening directory");
         return;
     }
     while((entry=readdir(dir))!=NULL)
     {
-        printf(&quot;%s\n&quot;,entry-&gt;d_name);
+        printf("%s\n",entry->d_name);
     }
     closedir(dir);
 }
