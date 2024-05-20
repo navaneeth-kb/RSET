@@ -13,17 +13,20 @@ int main()
     key_t key=111;
     shmid=shmget(key, 1024, 0666 | IPC_CREAT);
     shared_memory=(char *)shmat(shmid,NULL,0);
-    int y=strlen(shared_memory)-2;
-    for(int i=0;i&lt;=y;i++)
-        {
-        if(shared_memory[i]!=shared_memory[y-i])
+    strcpy(string,shared_memory);
+    int l=strlen(string);
+    int flag=0;
+    for(int i=0;i<l;i++)
+    {
+        if(string[l-1-i]!=a[i])
         {
             flag=1;
             break;
         }
     }
-    if(flag==1){
-    printf(&quot;Not a palindrome\n&quot;);}
-    else{
-    printf(&quot;Palindrome\n&quot;);}
+    if(flag==1)
+        printf("\nNot a palindrome\n");
+    else
+        printf("\nIs a palindrome\n");
+    printf("\nReader process completed\n");
 }
