@@ -9,7 +9,8 @@ int main()
     char *shared_memory;
     char buff[100];
     int shmid;
-    shmid=shmget((key_t)2345, 1024, 0666|IPC_CREAT);
+    key_t key=111;
+    shmid=shmget(key, 1024, 0666|IPC_CREAT);
     shared_memory=shmat(shmid,NULL,0);
     printf(&quot;Enter some data to write to shared memory\n&quot;);
     read(0,buff,100);
