@@ -15,8 +15,5 @@ int main()
     printf("Enter some data to write to shared memory\n");
     scanf("%s^\n",string);
     strcpy(shared_memory,string);
-    for(i=0;shared_memory[i]!=&#39;\0&#39;;i++){}
-    i=i-1;
-    printf(&quot;Length is %d\n&quot;,i);
-    printf(&quot;You wrote : %s&quot;,(char *)shared_memory);
+    printf("Writing over");
 }
