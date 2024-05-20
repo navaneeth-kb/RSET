@@ -11,8 +11,8 @@ int main()
     int shmid;
     key_t key=111;
     shmid=shmget(key, 1024, 0666|IPC_CREAT);
-    shared_memory=shmat(shmid,NULL,0);
-    printf(&quot;Enter some data to write to shared memory\n&quot;);
+    shared_memory=(char *)shmat(shmid,NULL,0);
+    printf("Enter some data to write to shared memory\n");
     read(0,buff,100);
     strcpy(shared_memory,buff);
     for(i=0;shared_memory[i]!=&#39;\0&#39;;i++){}
