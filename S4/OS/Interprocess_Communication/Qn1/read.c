@@ -5,7 +5,7 @@ int main()
 {
     int a=1, b=1, c=1, d=1, ncr, fact=1, *shared_memory, buff[100],
     shmid;
-    key_t key = ftok(&quot;/home/s4csc/navi&quot;, 78);
+    key_t key=111;
     shmid = shmget(key, 1024, 0666 | IPC_CREAT);
     shared_memory = (int *)shmat(shmid, NULL, 0);
 
