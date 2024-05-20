@@ -11,7 +11,7 @@ int main()
     char buff[100];
     int shmid;
     key_t key=111;
-    shmid=shmget(key, 1024, 0666);
+    shmid=shmget(key, 1024, 0666 | IPC_CREAT);
     shared_memory=shmat(shmid,NULL,0);
     int y=strlen(shared_memory)-2;
     for(int i=0;i&lt;=y;i++)
