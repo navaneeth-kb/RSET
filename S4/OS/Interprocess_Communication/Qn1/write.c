@@ -3,7 +3,7 @@
 int main()
 {
     int i, n, r, fact=1, fact1=1, *shared_memory, buff[100], shmid;
-    key_t key = ftok(&quot;/home/s4csc/navi&quot;, 78);
+    key_t key = 111;
     shmid = shmget(key, 1024, 0666 | IPC_CREAT);
     shared_memory = (int *)shmat(shmid, NULL, 0);
     printf(&quot;Enter the integer n:&quot;);
