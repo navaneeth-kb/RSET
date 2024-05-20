@@ -14,7 +14,7 @@ int main()
     c=shared_memory[3];
     d=shared_memory[4];
     int t=a-c;
-    for(int i=1; i&lt;=t; i++)
+    for(int i=1; i<=t; i++)
     {
         fact=fact*i;
     }
