@@ -7,14 +7,14 @@ int main()
 {
     int i;
     char *shared_memory;
-    char buff[100];
+    char string[100];
     int shmid;
     key_t key=111;
     shmid=shmget(key, 1024, 0666|IPC_CREAT);
     shared_memory=(char *)shmat(shmid,NULL,0);
     printf("Enter some data to write to shared memory\n");
-    read(0,buff,100);
-    strcpy(shared_memory,buff);
+    scanf("%s^\n",string);
+    strcpy(shared_memory,string);
     for(i=0;shared_memory[i]!=&#39;\0&#39;;i++){}
     i=i-1;
     printf(&quot;Length is %d\n&quot;,i);
