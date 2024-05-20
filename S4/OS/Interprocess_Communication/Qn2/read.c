@@ -10,8 +10,8 @@ int main()
     char *shared_memory;
     char buff[100];
     int shmid;
-
-    shmid=shmget((key_t)2345, 1024, 0666);
+    key_t key=111;
+    shmid=shmget(key, 1024, 0666);
     shared_memory=shmat(shmid,NULL,0);
     int y=strlen(shared_memory)-2;
     for(int i=0;i&lt;=y;i++)
