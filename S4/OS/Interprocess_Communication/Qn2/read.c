@@ -16,9 +16,9 @@ int main()
     strcpy(string,shared_memory);
     int l=strlen(string);
     int flag=0;
-    for(int i=0;i<l;i++)
+    for(int i=0;i<=l/2;i++)
     {
-        if(string[l-1-i]!=a[i])
+        if(string[l-1-i]!=string[i])
         {
             flag=1;
             break;
