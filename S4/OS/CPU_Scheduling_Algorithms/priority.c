@@ -34,7 +34,7 @@ void main()
     {
         for (int j = 0; j < n - 1 - i; j++) 
         {
-            if (p[j].priority > p[j + 1].priority) 
+            if (p[j].arrivalTime> p[j + 1].arrivalTime) 
             {
                 temp = p[j];
                 p[j] = p[j + 1];
