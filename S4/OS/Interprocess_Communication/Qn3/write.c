@@ -30,20 +30,18 @@ int main()
     if (pid == 0)
     {
         // Child process
-        printf(&quot;Child: Reading string from shared memory:
-
-        \&quot;%s\&quot;\n&quot;, data);
+        printf("Child: Reading string from shared memory:%s\n", data);
 
         // Reversing the string
         int len = strlen(data);
-        for (int i = 0; i &lt; len / 2; i++)
+        for (int i = 0; i<len / 2; i++)
         {
             char temp = data[i];
             data[i] = data[len - i - 1];
             data[len - i - 1] = temp;
         }
         // Printing the reversed string
-        printf(&quot;Child: Reversed string: \&quot;%s\&quot;\n&quot;, data);
+        printf("Child: Reversed string:%s\n", data);
         // Detaching from shared memory
         shmdt(data);
     }
@@ -52,10 +50,10 @@ int main()
         // Parent process
         wait(NULL); // Wait for child process to finish
         // Printing the original string
-        printf(&quot;Parent: Original string: \&quot;%s\&quot;\n&quot;, str);
+        printf("Parent: Original string: %s\n", str);
         // Printing the reversed string (modified by the child process)
 
-        printf(&quot;Parent: Reversed string: \&quot;%s\&quot;\n&quot;, data);
+        printf("Parent: Reversed string:%s\n", data);
         // Detaching from shared memory
         shmdt(data);
         // Deleting the shared memory segment
