@@ -1,0 +1,17 @@
+CREATE OR REPLACE TRIGGER check_user
+BEFORE INSERT OR UPDATE ON return  -- Trigger on 'return' table
+FOR EACH ROW
+BEGIN
+    -- Ensure that the user_id matches the expected pattern (or add any other checks)
+    IF :NEW.user_id IS NULL THEN
+        RAISE_APPLICATION_ERROR(-20001, 'Error: User ID cannot be null.');
+    END IF;
+
+    -- Additional conditions or checks can be added here
+    -- Example: Check if the returned book date is before the current date
+    IF :NEW.return_date > SYSDATE THEN
+        RAISE_APPLICATION_ERROR(-20002, 'Error: Return date cannot be in the future.');
+    END IF;
+
+END;
+/
