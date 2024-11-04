@@ -1,0 +1,13 @@
+create or replace trigger check_max_reserves
+before insert or update 
+on return
+for each row 
+declare 
+	reserve_count number;
+begin
+	select count(*) into reserve_count from return where user_id= :new.user_id;
+	if reserve_count>=3 then
+		RAISE_APPLICATION_ERROR(-20001,'User has reached a max of 3 reserves');
+	end if;
+end;
+ 
