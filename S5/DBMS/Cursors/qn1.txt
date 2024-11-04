@@ -1,0 +1,31 @@
+declare 
+	cursor fine_cursor is 
+		select user_id,fine from return ;
+
+		v_user_id return.user_id%TYPE;
+		v_fine return.fine%TYPE;
+		v_updated_count number:=0;
+begin
+	for i in fine_cursor loop
+		v_user_id:=i.user_id;
+		v_fine:=i.fine;
+
+		if v_fine<11 then
+			update return set fine=100 where user_id=v_user_id;
+			v_updated_count:=v_updated_count+1;
+		elsif v_fine>=11 and v_fine<30 then
+			update return set fine=300 where user_id=v_user_id;
+			v_updated_count:=v_updated_count+1;
+		elsif v_fine>31  then
+			update return set fine=400 where user_id=v_user_id;
+			v_updated_count:=v_updated_count+1;
+		end if;
+	end loop;
+
+	commit;
+	dbms_output.put_line('No of updated: '||v_updated_count);
+exception
+	when others then
+		rollback;
+		dbms_output.put_line('Errors: '||SQLERRM);
+end;
