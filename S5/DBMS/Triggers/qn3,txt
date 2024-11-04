@@ -1,0 +1,19 @@
+CREATE OR REPLACE TRIGGER limit_book_reservations
+BEFORE INSERT OR UPDATE ON return -- Trigger before insert or update on the 'return' table
+FOR EACH ROW
+DECLARE
+    reservation_count NUMBER;
+BEGIN
+    -- Count the number of existing reservations for the same ISBN
+    SELECT COUNT(*)
+    INTO reservation_count
+    FROM return
+    WHERE isbn = :NEW.isbn;
+
+    -- Check if the reservation count is greater than or equal to 2
+    IF reservation_count >= 2 THEN
+        -- Raise an error to prevent the insertion or update
+        RAISE_APPLICATION_ERROR(-20002, 'Error: Cannot reserve more than 2 copies of the same book.');
+    END IF;
+END;
+/
