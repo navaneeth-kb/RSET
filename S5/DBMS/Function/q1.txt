@@ -1,0 +1,18 @@
+create or replace function get_fine(p_user_id number)
+return number
+is
+    copies number;
+begin
+    select fine into copies from return where user_id = p_user_id;
+    return copies;
+end;
+/
+
+
+declare
+    fine number;
+begin
+    fine := get_fine(1);  -- Replace 1 with the desired user ID
+    dbms_output.put_line('fine: ' || fine);
+end;
+/

@@ -1,0 +1,8 @@
+begin
+    for i in 5..15 loop
+        insert into areaCal(radius, area) values(i, 3.14 * i * i);
+    end loop;
+    dbms_output.put_line('done');
+end;
+/
+

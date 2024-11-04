@@ -1,0 +1,10 @@
+declare
+    str varchar2(100) := '&str';
+    rev_str varchar2(100) := '';
+begin
+    for i in reverse 1..length(str) loop
+        rev_str := rev_str || substr(str, i, 1);
+    end loop;
+    dbms_output.put_line('rev str is ' || rev_str);
+end;
+/

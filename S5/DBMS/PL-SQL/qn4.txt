@@ -1,0 +1,22 @@
+declare
+    acno number := &acno;
+    min_bal number := 6000;
+    bal number := 0;
+begin
+    select balance into bal from accounts where acc_no = acno;
+    
+    if bal < min_bal then
+        update accounts set balance = balance - 100 where acc_no = acno;
+        dbms_output.put_line('balance is below min');
+    else
+        dbms_output.put_line('balance is fine');
+    end if;
+
+exception
+    when no_data_found then
+        dbms_output.put_line('balance is below min');
+    when others then
+        dbms_output.put_line('an error occurred ' || sqlerrm);
+end;
+/
+

@@ -1,0 +1,18 @@
+create or replace function get_max_return_date(p_user_id number)
+return varchar2
+is
+    max_return_date varchar2(10);
+begin
+    select max(return_date) into max_return_date from return where user_id = p_user_id;
+    return max_return_date;
+end;
+/
+
+
+declare
+    return_date varchar2(10);
+begin
+    return_date := get_max_return_date(1);  -- Replace 1 with the desired user ID
+    dbms_output.put_line('return: ' || return_date);
+end;
+/

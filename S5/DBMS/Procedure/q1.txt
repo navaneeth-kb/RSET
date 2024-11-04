@@ -1,0 +1,24 @@
+create or replace procedure decrease_fine(p_user_id number)
+is
+    fine_amt number(10);
+begin
+    select fine into fine_amt from return where user_id = p_user_id;
+
+    if fine_amt > 25 then
+        update return set fine = fine - (fine * 0.05) where user_id = p_user_id;
+        dbms_output.put_line('fine reduced by 5%');
+    else
+        dbms_output.put_line('fine is fine');
+    end if;
+
+exception
+    when no_data_found then
+        dbms_output.put_line('user not found');
+end;
+/
+
+
+begin
+    decrease_fine(1);
+end;
+/
