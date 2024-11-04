@@ -1,0 +1,57 @@
+DECLARE
+    -- Cursor to select ISBN and number of copies from the books table
+    CURSOR book_cursor IS
+        SELECT isbn, copies
+        FROM books;
+
+    -- Variables to hold values from the cursor
+    u_isbn books.isbn%TYPE;
+    u_no_of_copies books.copies%TYPE;
+
+    -- Counter for the number of records updated
+    updated_count INTEGER := 0;
+
+BEGIN
+    -- Open the cursor and loop through each book
+    FOR book IN book_cursor LOOP
+        u_isbn := book.isbn;
+        u_no_of_copies := book.copies;
+
+        -- Update logic based on the number of copies
+        IF u_no_of_copies < 5 THEN
+            -- If less than 5 copies, increase by 10
+            UPDATE books
+            SET copies = copies + 10
+            WHERE isbn = u_isbn;
+            updated_count := updated_count + 1;
+
+        ELSIF u_no_of_copies < 10 THEN
+            -- If less than 10 copies but greater than or equal to 5, increase by 7
+            UPDATE books
+            SET copies = copies + 7
+            WHERE isbn = u_isbn;
+            updated_count := updated_count + 1;
+
+        ELSIF u_no_of_copies < 15 THEN
+            -- If less than 15 copies but greater than or equal to 10, increase by 5
+            UPDATE books
+            SET copies = copies + 5
+            WHERE isbn = u_isbn;
+            updated_count := updated_count + 1;
+        END IF;
+
+    END LOOP;
+
+    -- Commit the changes
+    COMMIT;
+
+    -- Output the number of records updated
+    DBMS_OUTPUT.PUT_LINE('Number of records updated: ' || updated_count);
+
+EXCEPTION
+    WHEN OTHERS THEN
+        -- Rollback in case of error
+        ROLLBACK;
+        DBMS_OUTPUT.PUT_LINE('Error occurred: ' || SQLERRM);
+END;
+/
