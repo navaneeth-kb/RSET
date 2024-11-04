@@ -1,0 +1,9 @@
+CREATE OR REPLACE TRIGGER check_total_fine
+BEFORE UPDATE ON reader -- assuming 'reader' is the correct table name
+FOR EACH ROW
+BEGIN
+    IF :NEW.fine > 59 THEN
+        RAISE_APPLICATION_ERROR(-20001, 'The total fine for this reader exceeds 59');
+    END IF;
+END;
+/
