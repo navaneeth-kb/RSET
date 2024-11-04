@@ -1,0 +1,8 @@
+create or replace trigger preveent_old_due_date 
+before insert or update on return 
+for each row 
+begin
+	if :new.due_date>SYSDATE then
+		RAISE_APPLICATION_ERROR(-20001,'INSERT OR UPDATE NOT ALLOWED');
+	end if ;
+end;
