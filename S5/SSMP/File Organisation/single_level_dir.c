@@ -1,12 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <dirent.h> 
-
+#include <unistd.h>
 void main()
 {
 	int ch;
 	
-	
+	printf("Navaneeth K.B S5 CSC");
 	while(1)
 	{
 		printf("MENU \n1-CREATE A FILE \n2-DELETE A FILE \n3-SEARCH A FILE \n4-DISPLAY ALL FILES \n5-RENAME A FILE\n");
@@ -60,6 +60,15 @@ void main()
 			        			printf("%s\n", dir->d_name);
 			        			printf("Found!!\n");
 			        			flag=1;
+			        			char cwd[1024];
+							if (getcwd(cwd, sizeof(cwd)) != NULL) 
+							{
+								printf("Current directory: %s\n", cwd);
+							} 
+							else 
+							{
+								perror("getcwd");
+							}
 			        			break;
 		        			}
 			        	}
