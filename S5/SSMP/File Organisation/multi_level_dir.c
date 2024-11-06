@@ -9,7 +9,7 @@ void main()
 	while(1)
 	{
 
-		printf("MENU \n1-CREATE A FILE \n2-DELETE A FILE \n3-SEARCH A FILE \n4-DISPLAY ALL FILES \n5-RENAME A FILE \n6-CREATE NEW DIRECTORY \n7-CHANGE DIRECTORY\n");
+		printf("MENU \n1-CREATE A FILE \n2-DELETE A FILE \n3-SEARCH A FILE \n4-DISPLAY ALL FILES \n5-RENAME A FILE \n6-CREATE NEW DIRECTORY \n7-CHANGE DIRECTORY \n8-REMOVE DIRECTORY\n");
 		printf("Enter the choice:");
 		scanf("%d",&ch);
 		char fname[100];
@@ -52,8 +52,8 @@ void main()
 	        	case 3:
 			        d = opendir(".");
 			        char fname_search[100];
-                    printf("Enter the file name:");
-                    scanf("%s",fname_search);
+				    printf("Enter the file name:");
+				    scanf("%s",fname_search);
 			        int i=0;
 			        int flag=0;
 			        if (d)
@@ -65,6 +65,15 @@ void main()
 			        			printf("%s\n", dir->d_name);
 			        			printf("Found!!\n");
 			        			flag=1;
+			        			char cwd[1024];
+							if (getcwd(cwd, sizeof(cwd)) != NULL) 
+							{
+								printf("Current directory: %s\n", cwd);
+							} 
+							else 
+							{
+								perror("getcwd");
+							}
 			        			break;
 		        			}
 			        	}
@@ -105,29 +114,43 @@ void main()
 			        	printf("No file found");
 		        	}
 		        	break;
-            case 6:
-                printf("Enter the name of the directory to create: ");
-                scanf("%255s", dirname);  // Read the input from the user
-                if (mkdir(dirname) == -1)
-                {
-                    printf("mkdir failed");
-                }
-                else
-                {
-                    printf("Directory created successfully\n");
-                }
-                break;
+			case 6:
+				printf("Enter the name of the directory to create: ");
+				scanf("%255s", dirname);  
+				if (mkdir(dirname,0777) == -1)
+				{
+				    printf("mkdir failed");
+				}
+				else
+				{
+				    printf("Directory created successfully\n");
+				}
+				break;
 
-            case 7:
-                printf("Enter the name of the directory: ");
-                scanf("%255s", dirname);  // Read the input from the user
-                if (chdir(dirname) == -1)
-                {
-                    printf("chdir failed");  // Print an error message if chdir fails
-                } else
-                {
-                    printf("Successfully changed to directory '%s'\n", dirname);
-                }
+			case 7:
+				printf("Enter the name of the directory: ");
+				scanf("%255s", dirname);  
+				if (chdir(dirname) == -1)
+				{
+				    printf("chdir failed");  
+				} 
+				else
+				{
+				    printf("Successfully changed to directory '%s'\n", dirname);
+				}
+				break;
+                	case 8:
+                		printf("Enter the name of the directory: ");
+				scanf("%255s", dirname);  
+				if (rmdir(dirname,0777) == -1)
+				{
+				    printf("rmdir failed");
+				}
+				else
+				{
+				    printf("Directory deleted successfully\n");
+				}
+				break;
             }
         }
 }
