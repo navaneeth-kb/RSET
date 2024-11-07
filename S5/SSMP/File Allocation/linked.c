@@ -48,22 +48,25 @@ void main() {
         int start_block = -1;  // Starting block of the file
         int prev_block = -1;   // Previous block in the chain
 
-        for (int i = 0; i < num_blocks; i++) {
+        for (int i = 0; i < num_blocks; i++) 
+        {
             int block;
             do {
                 block = rand() % total_blocks;
-            } while (blocks[block] == 1);  // Keep finding a free block
-
-            blocks[block] = 1;  // Mark block as allocated
-            blocks_left--;      // Decrease the count of available blocks
-
+            } while (blocks[block] == 1);  // Find an unallocated block
+        
+            blocks[block] = 1;  // Mark the block as allocated
+            blocks_left--;      // Decrease available blocks
+        
             if (i == 0) {
                 start_block = block;  // Set the start block for the file
             } else {
-                file_blocks[file_count][prev_block] = block;  // Link previous block to current
+                file_blocks[file_count][prev_block] = block;  // Link to the previous block
             }
-            prev_block = block;
+            
+            prev_block = block;  // Update the previous block
         }
+
         file_blocks[file_count][prev_block] = -1;  // End of file chain
 
         // Update file metadata
