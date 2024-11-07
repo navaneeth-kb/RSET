@@ -1,156 +1,139 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <dirent.h>
+#include<stdio.h>
+#include<stdlib.h>
+#include<dirent.h>
 
 void main()
 {
-	int ch;
-	char dirname[100];
-	while(1)
-	{
+    while(1)
+    {
+        int ch;
+        char fname[100];
+        char dname[100];
+        DIR *d;
+        struct dirent *dir;
+        printf("1-CREATE FILE\n2-DELETE FILE\n3-SEARCH FILE\n4-DISPLAY ALL FILES\n5-RENAME FILE\n6-CREATE DIR\n7-DELETE DIR\n8-CHANGE DIR\n");
+        printf("Enter your choice:");
+        scanf("%d",&ch);
+        switch(ch)
+        {
+            case 1:
+                printf("enter file name:");
+                scanf("%s",fname);
+                FILE *fp;
+                char text[100];
+                fp=fopen(fname,"w");
+                printf("enter file contents:");
+                gets(text);
+                gets(text);
+                fprintf(fp, "%s", text);   //in linux => fprintf(fp,text);
+                printf("file created\n");
+                fclose(fp);
+                break;
 
-		printf("MENU \n1-CREATE A FILE \n2-DELETE A FILE \n3-SEARCH A FILE \n4-DISPLAY ALL FILES \n5-RENAME A FILE \n6-CREATE NEW DIRECTORY \n7-CHANGE DIRECTORY \n8-REMOVE DIRECTORY\n");
-		printf("Enter the choice:");
-		scanf("%d",&ch);
-		char fname[100];
-		char fname2[100];
-		char fnames[100];
-		DIR *d;
-		DIR *d2;
-		char fname_rename[100];
-		struct dirent *dir;
-        struct dirent *dir2;
-        char dirname[256];
-		switch(ch)
-		{
-			case 1:
+            case 2:
+                printf("enter file name:");
+                scanf("%s",fname);
+                if(remove(fname)==0)
+                {
+                    printf("file removed");
+                }
+                else
+                {
+                    printf("file removal unsuccessful");
+                }
+                break;
 
-				printf("Enter the file name:");
+            case 3:
+                d=opendir(".");
+                printf("enter file name:");
+                scanf("%s",fname);
+                int flag=0;
+                if(d)
+                {
+                    while((dir=readdir(d))!=NULL)
+                    {
+                        if(strcmp(fname,dir->d_name)==0)
+                        {
+                            flag=1;
+                            printf("Found\n");
+                            break;
+                        }
+                    }
+                    closedir(d);
+                    if(flag==0)
+                    {
+                        printf("File not found\n");
+                    }
+                }
+                break;
+
+            case 4:
+                d=opendir(".");
+                if(d)
+                {
+                    while((dir=readdir(d))!=NULL)
+                    {
+                        printf("%s\n",dir->d_name);
+                    }
+                    closedir(d);
+                }
+                printf("\n");
+                break;
+
+            case 5:
+                printf("Enter the file name:");
 				scanf("%s",fname);
-				FILE *filePointer;
-				filePointer = fopen(fname, "w");
-				char text[100];
-				printf("Enter file content:");
-				gets(text);
-				gets(text);
-				fprintf(filePointer,text);
-				printf("File created!\n");
-				fclose(filePointer);
-				break;
-			case 2:
-				printf("Enter the file name:");
-				scanf("%s",fname2);
-			        if (remove(fname2) == 0)
-			        {
-					printf("File deleted!!\n");
-			        }
-			        else
-			        {
-			        	printf("No file found");
-		        	}
-		        	break;
-	        	case 3:
-			        d = opendir(".");
-			        char fname_search[100];
-				    printf("Enter the file name:");
-				    scanf("%s",fname_search);
-			        int i=0;
-			        int flag=0;
-			        if (d)
-			        {
-			        	while ((dir = readdir(d)) != NULL)
-			        	{
-			        		if (strcmp(fname_search, dir->d_name) == 0)
-			        		{
-			        			printf("%s\n", dir->d_name);
-			        			printf("Found!!\n");
-			        			flag=1;
-			        			char cwd[1024];
-							if (getcwd(cwd, sizeof(cwd)) != NULL) 
-							{
-								printf("Current directory: %s\n", cwd);
-							} 
-							else 
-							{
-								perror("getcwd");
-							}
-			        			break;
-		        			}
-			        	}
-			        	closedir(d);
-			        	if (flag==0)
-			        	{
-			        		printf("not found\n");
-        				}
-		        	}
-		        	break;
-
-		        case 4:
-			        d2 = opendir(".");
-			        if (d2)
-			        {
-			        	while ((dir2 = readdir(d2)) != NULL)
-			        	{
-			        		printf("%s\n", dir2->d_name);
-			        	}
-			        	closedir(d2);
-
-		   		}
-		   		printf("\n");
-		   		break;
-
-   			case 5:
-				printf("Enter the file name:");
-				scanf("%s",fname_rename);
-				char fname_newname[100];
+				char fname_new[100];
 				printf("Enter new name:");
-				scanf("%s",fname_newname);
-				if (rename(fname_rename,fname_newname) == 0)
-			        {
-					printf("File renamed!!\n");
-			        }
-			        else
-			        {
-			        	printf("No file found");
-		        	}
-		        	break;
-			case 6:
-				printf("Enter the name of the directory to create: ");
-				scanf("%255s", dirname);  
-				if (mkdir(dirname,0777) == -1)
-				{
-				    printf("mkdir failed");
-				}
-				else
-				{
-				    printf("Directory created successfully\n");
-				}
-				break;
+				scanf("%s",fname_new);
+				if(rename(fname,fname_new)==0)
+                {
+                    printf("File renamed\n");
+                }
+                else
+                {
+                    printf("No file found\n");
+                }
+                break;
 
-			case 7:
-				printf("Enter the name of the directory: ");
-				scanf("%255s", dirname);  
-				if (chdir(dirname) == -1)
-				{
-				    printf("chdir failed");  
-				} 
-				else
-				{
-				    printf("Successfully changed to directory '%s'\n", dirname);
-				}
-				break;
-                	case 8:
-                		printf("Enter the name of the directory: ");
-				scanf("%255s", dirname);  
-				if (rmdir(dirname,0777) == -1)
-				{
-				    printf("rmdir failed");
-				}
-				else
-				{
-				    printf("Directory deleted successfully\n");
-				}
-				break;
-            }
+            case 6:
+                printf("Enter the dir name:");
+				scanf("%s",dname);
+				if(mkdir(dname)==0)
+                {
+                    printf("mkdir successful\n");
+                }
+                else
+                {
+                    printf("mkdir unsuccessful\n");
+                }
+                break;
+
+            case 7:
+                printf("Enter the dir name:");
+				scanf("%s",dname);
+				if(rmdir(dname)==0)
+                {
+                    printf("rmdir successful\n");
+                }
+                else
+                {
+                    printf("rmdir unsuccessful\n");
+                }
+                break;
+
+            case 8:
+                printf("Enter the dir name:");
+				scanf("%s",dname);
+				if(chdir(dname)==0)
+                {
+                    printf("chdir successful\n");
+                }
+                else
+                {
+                    printf("chdir unsuccessful\n");
+                }
+                break;
         }
+    }
 }
