@@ -1,77 +1,76 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <time.h>
 
 #define MAX_FILES 100
-#define MAX_FILE_NAME_LENGTH 20
 
-void main() {
+int main() {
     printf("Navaneeth K.B S5 CSC\n");
-
-    int total_blocks;  // Total number of blocks available
-    printf("Enter the total number of blocks: ");
-    scanf("%d", &total_blocks);
     
-    int blocks[total_blocks]={0};  // Initialize blocks array
+    int total_blocks, num_files;
+    printf("Enter the total number of blocks: ");
+    if (scanf("%d", &total_blocks) != 1 || total_blocks <= 0) {
+        printf("Invalid number of blocks.\n");
+        return 1;
+    }
+
+    int blocks[total_blocks];  // Array to track allocated blocks
+    for (int i = 0; i < total_blocks; i++) {
+        blocks[i] = 0;  // Set all blocks to unallocated (0)
+    }
 
     srand(time(0));  // Seed the random number generator
 
-    char file_names[MAX_FILES][MAX_FILE_NAME_LENGTH];  // Array to store file names
-    int file_start[MAX_FILES];   // Array to store the starting block of each file
-    int file_size[MAX_FILES];    // Array to store file sizes
-    int file_blocks[MAX_FILES][total_blocks];  // Array to store block chains
-    int file_count = 0;          // To keep track of the number of files
-    int blocks_left = total_blocks;  // Track available blocks
+    char file_name[MAX_FILES][10];  // Array to store file names
+    int file_size[MAX_FILES];        // Array to store file sizes
+    int index_blocks[MAX_FILES];     // Array to store index blocks
+    int file_blocks[MAX_FILES][total_blocks]; // Array to store block allocations
 
-    // Ask for the number of files to allocate
-    int num_files;
-    printf("Enter the number of files to allocate: ");
-    scanf("%d", &num_files);
+    printf("Enter the number of files: ");
+    if (scanf("%d", &num_files) != 1 || num_files <= 0 || num_files > MAX_FILES) {
+        printf("Invalid number of files.\n");
+        return 1;
+    }
 
-    while (file_count < num_files) 
-    {
+    int blocks_left = total_blocks;
+
+    for (int i = 0; i < num_files; i++) {
         printf("\nEnter the file name: ");
-        scanf("%s", file_names[file_count]);
-    
-        printf("Enter the number of blocks allocated to the file: ");
-        int num_blocks;
-        scanf("%d", &num_blocks);
-
-        // Check if enough blocks are available
-        if (num_blocks > blocks_left) {
-            printf("Not enough blocks available for file %s.\n", file_names[file_count]);
-            continue;  // Skip the allocation and proceed with the next file
+        if (scanf("%s", file_name[i]) != 1) {
+            printf("Invalid file name.\n");
+            return 1;
         }
 
-        // Allocate blocks for the file
-        int start_block = -1;  // Starting block of the file
-        int prev_block = -1;   // Previous block in the chain
+        printf("Enter the number of blocks allocated to the file: ");
+        if (scanf("%d", &file_size[i]) != 1 || file_size[i] <= 0 || file_size[i] + 1 > blocks_left) {
+            printf("Invalid or insufficient blocks for file %s.\n", file_name[i]);
+            continue;
+        }
 
-        for (int i = 0; i < num_blocks; i++) {
+        // Allocate index block
+        int index_block;
+        do {
+            index_block = rand() % total_blocks;
+        } while (blocks[index_block] == 1);
+        blocks[index_block] = 1;
+        index_blocks[i] = index_block;
+        blocks_left--;  // Decrease the count of available blocks
+
+        printf("%-10s\t%-6d\t%-8d\t", file_name[i], file_size[i], index_block);
+
+        // Allocate data blocks for the file
+        for (int j = 0; j < file_size[i]; j++) {
             int block;
             do {
                 block = rand() % total_blocks;
-            } while (blocks[block] == 1);  // Keep finding a free block
-
-            blocks[block] = 1;  // Mark block as allocated
-            blocks_left--;      // Decrease the count of available blocks
-
-            if (i == 0) {
-                start_block = block;  // Set the start block for the file
-            } else {
-                file_blocks[file_count][prev_block] = block;  // Link previous block to current
-            }
-            prev_block = block;
+            } while (blocks[block] == 1);
+            blocks[block] = 1;
+            file_blocks[i][j] = block;
+            printf("%d ", file_blocks[i][j]);
+            blocks_left--;  // Decrease the count of available blocks
         }
-        file_blocks[file_count][prev_block] = -1;  // End of file chain
 
-        // Update file metadata
-        file_start[file_count] = start_block;
-        file_size[file_count] = num_blocks;
-
-        printf("File %s allocated with %d blocks starting from block %d.\n", file_names[file_count], num_blocks, start_block);
-        file_count++;
+        printf("\n");
 
         // Check if all blocks are allocated
         if (blocks_left <= 0) {
@@ -80,16 +79,19 @@ void main() {
         }
     }
 
-    // Display the entire table of allocated files
+    // Display the final allocation table
     printf("\nFinal allocation table:\n");
-    printf("File\t\tSize\tStart\tBlocks\n");
-    for (int i = 0; i < file_count; i++) {
-        printf("%-10s\t%d\t%d\t", file_names[i], file_size[i], file_start[i]);
-        int block = file_start[i];
-        while (block != -1) {
-            printf("%d ", block);
-            block = file_blocks[i][block];  // Follow the block chain
+    printf("Name      \tSize  \tIndex   \tBlocks\n");
+    printf("---------------------------------------------\n");
+    for (int i = 0; i < num_files; i++) {
+        if (file_size[i] > 0) {  // Only display allocated files
+            printf("%-10s\t%-6d\t%-8d\t", file_name[i], file_size[i], index_blocks[i]);
+            for (int j = 0; j < file_size[i]; j++) {
+                printf("%d ", file_blocks[i][j]);
+            }
+            printf("\n");
         }
-        printf("\n");
     }
+
+    return 0;
 }
