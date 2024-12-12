@@ -1,66 +1,89 @@
-#include <stdio.h>
+#include<stdio.h>
+#include<stdlib.h>
 #include <string.h>
 
-#define MAX_FILES 100
-#define MAX_BLOCKS 100
+struct blocks
+{
+    int avail;
+    int id;
+};
+struct files
+{
+    char name[50];
+    int block_ids[50];
+    int fsize;
+}File[10];
 
-int main() {
-    printf("Navaneeth K.B S5 CSC \n");
+int n_blocks=0;
+int n_file=0;
 
-    int total_blocks;  // Total number of blocks available
-    printf("Enter the total number of blocks: ");
-    scanf("%d", &total_blocks);
+void main()
+{
+    int idx=0;
+    char fname[50];
+    int msize,bsize,avail_blocks,fblocks;
+    printf("Enter memory size:");
+    scanf("%d",&msize);
+    printf("Enter block size:");
+    scanf("%d",&bsize);
+    n_blocks=msize/bsize;
+    avail_blocks=n_blocks;
+    printf("No of blocks:%d",n_blocks);
 
-    int blocks[MAX_BLOCKS] = {0};  // Array to track block allocation (initialized to 0)
-
-    int num_files;
-    printf("Enter the number of files: ");
-    scanf("%d", &num_files);
-
-    char file_name[MAX_FILES][10];  // Array to store file names
-    int file_size[MAX_FILES];       // Array to store file sizes
-    int file_blocks[MAX_FILES][MAX_BLOCKS];  // Array to store allocated blocks for each file
-    int file_count = 0;     // To keep track of the number of files
-
-    for (int i = 0; i < num_files; i++) {
-        printf("\nEnter the file name: ");
-        scanf("%s", file_name[file_count]);
-
-        printf("Enter the number of blocks required: ");
-        scanf("%d", &file_size[file_count]);
-
-        int allocated_blocks = 0;  // To track number of blocks allocated for current file
-        for (int j = 0; j < total_blocks && allocated_blocks < file_size[file_count]; j++) {
-            if (blocks[j] == 0) {  // If block is free
-                blocks[j] = 1;  // Mark block as allocated
-                file_blocks[file_count][allocated_blocks] = j;  // Store block index
-                allocated_blocks++;
-            }
-        }
-
-        if (allocated_blocks == file_size[file_count]) {
-            printf("Blocks allocated for %s: ", file_name[file_count]);
-            for (int j = 0; j < file_size[file_count]; j++) {
-                printf("%d ", file_blocks[file_count][j]);
-            }
-            printf("\n");
-            file_count++;
-        } else {
-            printf("Not enough blocks available for file %s.\n", file_name[file_count]);
-        }
+    struct blocks b[n_blocks];
+    for(int i=0;i<n_blocks;i++)
+    {
+        b[i].avail=0;
+        b[i].id=i;
     }
 
-    // Display final allocation table
-    printf("\nFinal allocation table:\n");
-    printf("File Name\tSize\tBlocks\n");
-    printf("--------------------------------------\n");
-    for (int i = 0; i < file_count; i++) {
-        printf("%-10s\t%-5d\t", file_name[i], file_size[i]);
-        for (int j = 0; j < file_size[i]; j++) {
-            printf("%d ", file_blocks[i][j]);
+    while(1)
+    {
+        int ch;
+        printf("\n\n1-ALLOCATE FILE\n2-SHOW ALLOCATION TABLE\n\n");
+        printf("Enter choice:");
+        scanf("%d",&ch);
+        switch(ch)
+        {
+            case 1:
+                printf("Enter the name of file:");
+                scanf("%s",fname);
+                printf("Enter the no of blocks required:");
+                scanf("%d",&fblocks);
+                if(fblocks>avail_blocks)
+                {
+                    printf("Enough blocks not available");
+                    break;
+                }
+                avail_blocks-=fblocks;
+                int j=0;
+                for(int i=0;i < n_blocks && j < fblocks;i++)
+                {
+                    if(b[i].avail==0)
+                    {
+                        b[i].avail=1;
+                        File[n_file].block_ids[j]=b[i].id;
+                        j++;
+                    }
+                }
+                strcpy(File[n_file].name,fname);
+                File[n_file].fsize=fblocks;
+                n_file++;
+                break;
+            case 2:
+                printf("\nAllocation Table");
+                printf("\n");
+                printf("\nFile name\t\tFile size\t\tBlocks allocated");
+                for(int i=0;i<n_file;i++)
+                {
+                    printf("\n");
+                    printf("%s\t%d\t",File[i].name,File[i].fsize);
+                    for(int j=0;j<File[i].fsize;j++)
+                    {
+                        printf("%d ",File[i].block_ids[j]);
+                    }
+                }
+                break;
         }
-        printf("\n");
     }
-
-    return 0;
 }
