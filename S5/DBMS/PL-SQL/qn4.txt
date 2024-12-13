@@ -14,7 +14,7 @@ begin
 
 exception
     when no_data_found then
-        dbms_output.put_line('balance is below min');
+        dbms_output.put_line('invalid account number');
     when others then
         dbms_output.put_line('an error occurred ' || sqlerrm);
 end;
