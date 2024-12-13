@@ -1,0 +1,13 @@
+SET PAGESIZE 20;
+SET LINESIZE 80;
+TTITLE CENTER 'Books Report' SKIP 2;
+BTITLE CENTER 'End of Books Report';
+SPOOL books_report.lst;
+
+SELECT * FROM Books;
+
+------------------------------------
+
+SPOOL OFF;
+TTITLE OFF;
+BTITLE OFF;
