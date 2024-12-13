@@ -1,0 +1,67 @@
+CREATE OR REPLACE PACKAGE book_pkg AS
+  PROCEDURE add_new_book(
+    p_ISBN IN NUMBER,
+    p_Title IN VARCHAR2,
+    p_Authno IN VARCHAR2,
+    p_Publisher IN VARCHAR2,
+    p_total_no_of_copies IN NUMBER
+  );
+  FUNCTION increase_all_due_dates RETURN NUMBER;
+END book_pkg;
+
+-------------------------------
+
+CREATE OR REPLACE PACKAGE BODY book_pkg AS
+  PROCEDURE add_new_book(
+    p_ISBN IN NUMBER,
+    p_Title IN VARCHAR2,
+    p_Authno IN VARCHAR2,
+    p_Publisher IN VARCHAR2,
+    p_total_no_of_copies IN NUMBER
+  ) IS
+  BEGIN
+    INSERT INTO Books(ISBN, Title, Authno, Publisher, total_no_of_copies)
+    VALUES (p_ISBN, p_Title, p_Authno, p_Publisher, p_total_no_of_copies);
+    DBMS_OUTPUT.PUT_LINE('New book added successfully');
+  EXCEPTION
+    WHEN OTHERS THEN
+      DBMS_OUTPUT.PUT_LINE('Error adding book: ' || SQLERRM);
+  END add_new_book;
+
+  FUNCTION increase_all_due_dates RETURN NUMBER IS
+    rows_updated NUMBER;
+  BEGIN
+    UPDATE RETURN set due_date = due_date + 5;
+    rows_updated := SQL%ROWCOUNT;
+    RETURN rows_updated;
+  END increase_all_due_dates;
+END book_pkg;
+
+------------------------------------------------------------
+
+EXEC book_pkg.add_new_book(
+  987, 'navi', 'author_name', 'publisher_name', 10
+);
+
+OR
+
+DECLARE
+  ISBN NUMBER := 02468;
+  Title VARCHAR2(30) := 'System Software';
+  Authno VARCHAR2(10) := 'A003';
+  Publisher VARCHAR2(20) := 'Charles';
+  no_of_copies NUMBER := 6;
+BEGIN
+  book_pkg.add_new_book(ISBN, Title, Authno, Publisher, no_of_copies);
+END;
+
+------------------------------------------------------------
+
+DECLARE
+  updated_count NUMBER;
+BEGIN
+  updated_count := book_pkg.increase_all_due_dates();
+  DBMS_OUTPUT.PUT_LINE('Number of due dates updated: ' || updated_count);
+END;
+
+
