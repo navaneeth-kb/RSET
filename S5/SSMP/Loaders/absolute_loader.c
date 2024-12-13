@@ -19,8 +19,8 @@ int main() {
 
     // Read the header
     fscanf(fp, "%s", line);
-    sscanf(line, "H^%[^'^']^%*s", fileProgName);
-
+    sscanf(line, "H^%6s^%*s", fileProgName);
+    
     // Verify the program name
     if (strcmp(userProgName, fileProgName) != 0) {
         printf("Program name mismatch. Expected: %s, Found: %s\n", userProgName, fileProgName);
