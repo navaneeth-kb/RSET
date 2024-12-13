@@ -37,7 +37,7 @@ int main() {
 
             while (i < strlen(line) && line[i] != '$') {
                 if (line[i] != '^') { // Skip the '^'
-                    printf("%04X\t", staddr1); // Print the starting address
+                    printf("%06X\t", staddr1); // Print the starting address
                     for (j = 0; j < 6 && line[i + j] != '\0' && line[i + j] != '^' && line[i + j] != '$'; j++) {
                         printf("%c", line[i + j]); // Print each character of the object code
                     }
