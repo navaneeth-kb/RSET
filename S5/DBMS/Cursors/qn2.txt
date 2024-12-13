@@ -1,40 +1,25 @@
 DECLARE
-    -- Cursor to select books with more than three reservations
-    CURSOR book_cursor IS
-        SELECT isbn
-        FROM return
-        GROUP BY isbn
-        HAVING COUNT(reservation_id) > 3;  -- Assuming there's a column 'reservation_id' to count reservations
+  CURSOR reserve_cursor IS
+    SELECT ISBN
+    FROM Return
+    GROUP BY ISBN
+    HAVING COUNT(reserve_date) > 3;
 
-    -- Variable to hold the ISBN from the cursor
-    u_isbn return.isbn%TYPE;
-
-    -- Counter for the number of records updated
-    updated_count INTEGER := 0;
+  u_ISBN Return.ISBN%TYPE;
 BEGIN
-    -- Loop through each book in the cursor
-    FOR record IN book_cursor LOOP
-        u_isbn := record.isbn;
+  OPEN reserve_cursor;
+  LOOP
+    FETCH reserve_cursor INTO u_ISBN;
+    EXIT WHEN reserve_cursor%NOTFOUND;
 
-        -- Update the due date to 15 days from today
-        UPDATE return
-        SET due_date = due_date + 15
-        WHERE isbn = u_isbn;
+    UPDATE Return
+    SET due_date = issue_date + 15
+    WHERE ISBN = u_ISBN;
 
-        -- Increment the counter for updated records
-        updated_count := updated_count + 1;
-    END LOOP;
+  END LOOP;
 
-    -- Commit the changes
-    COMMIT;
+  CLOSE reserve_cursor;
 
-    -- Output the number of records updated
-    DBMS_OUTPUT.PUT_LINE('Number of records updated: ' || updated_count);
-
-EXCEPTION
-    WHEN OTHERS THEN
-        -- Rollback in case of error
-        ROLLBACK;
-        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+  DBMS_OUTPUT.PUT_LINE('Due dates updated by adding 15 days for books with more than 3 reserves.');
 END;
 /
