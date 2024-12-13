@@ -1,57 +1,35 @@
 DECLARE
-    -- Cursor to select ISBN and number of copies from the books table
-    CURSOR book_cursor IS
-        SELECT isbn, copies
-        FROM books;
+  CURSOR copies_cursor IS
+    SELECT ISBN, total_no_of_copies
+    FROM Books;
 
-    -- Variables to hold values from the cursor
-    u_isbn books.isbn%TYPE;
-    u_no_of_copies books.copies%TYPE;
-
-    -- Counter for the number of records updated
-    updated_count INTEGER := 0;
-
+  u_ISBN Books.ISBN%TYPE;
+  v_no_of_copies Books.total_no_of_copies%TYPE;
 BEGIN
-    -- Open the cursor and loop through each book
-    FOR book IN book_cursor LOOP
-        u_isbn := book.isbn;
-        u_no_of_copies := book.copies;
+  OPEN copies_cursor;
+  LOOP
+    FETCH copies_cursor INTO u_ISBN, v_no_of_copies;
+    EXIT WHEN copies_cursor%NOTFOUND;
 
-        -- Update logic based on the number of copies
-        IF u_no_of_copies < 5 THEN
-            -- If less than 5 copies, increase by 10
-            UPDATE books
-            SET copies = copies + 10
-            WHERE isbn = u_isbn;
-            updated_count := updated_count + 1;
+    IF v_no_of_copies < 5 THEN
+      UPDATE Books
+      SET total_no_of_copies = 5
+      WHERE ISBN = u_ISBN;
 
-        ELSIF u_no_of_copies < 10 THEN
-            -- If less than 10 copies but greater than or equal to 5, increase by 7
-            UPDATE books
-            SET copies = copies + 7
-            WHERE isbn = u_isbn;
-            updated_count := updated_count + 1;
+    ELSIF v_no_of_copies < 10 THEN
+      UPDATE Books
+      SET total_no_of_copies = 12
+      WHERE ISBN = u_ISBN;
 
-        ELSIF u_no_of_copies < 15 THEN
-            -- If less than 15 copies but greater than or equal to 10, increase by 5
-            UPDATE books
-            SET copies = copies + 5
-            WHERE isbn = u_isbn;
-            updated_count := updated_count + 1;
-        END IF;
+    ELSIF v_no_of_copies < 15 THEN
+      UPDATE Books
+      SET total_no_of_copies = 17
+      WHERE ISBN = u_ISBN;
+    END IF;
+  END LOOP;
 
-    END LOOP;
+  CLOSE copies_cursor;
 
-    -- Commit the changes
-    COMMIT;
-
-    -- Output the number of records updated
-    DBMS_OUTPUT.PUT_LINE('Number of records updated: ' || updated_count);
-
-EXCEPTION
-    WHEN OTHERS THEN
-        -- Rollback in case of error
-        ROLLBACK;
-        DBMS_OUTPUT.PUT_LINE('Error occurred: ' || SQLERRM);
+  DBMS_OUTPUT.PUT_LINE('Number of copies updated in Books table.');
 END;
 /
