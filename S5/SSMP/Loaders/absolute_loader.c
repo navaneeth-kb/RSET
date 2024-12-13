@@ -1,61 +1,56 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
+#include <stdlib.h>
 
-void main() {
-    char col1[10], filename[10], startloc[10], length[10], strtadr[10], objcd[10], strtemp[10];
-    int i, j, adr[10], obj[10], inttemp, adrctr;
+int main() {
     FILE *fp;
+    int staddr1, i, j;
+    char line[50], staddr[10], userProgName[10], fileProgName[10];
 
-    fp = fopen("objectcode_1.txt", "r");
+    // Prompt the user for the program name
+    printf("Enter the program name: ");
+    scanf("%s", userProgName);
+
+    fp = fopen("input.txt", "r");
     if (fp == NULL) {
-        printf("Error opening file\n");
-        exit(1);
+        printf("Error: Unable to open file.\n");
+        return 1;  // Return non-zero for error
     }
 
-    fscanf(fp, "%s %s %s %s", col1, filename, startloc, length);
-    fscanf(fp, "%s", col1);
-    i = 0;
+    // Read the header
+    fscanf(fp, "%s", line);
+    sscanf(line, "H^%[^'^']^%*s", fileProgName);
 
-    while (strcmp(col1, "T") == 0) {
-        if (fscanf(fp, "%s %s %s", strtadr, length, objcd) != 3) {
-            printf("Error reading input line\n");
-            exit(1);
-        }
+    // Verify the program name
+    if (strcmp(userProgName, fileProgName) != 0) {
+        printf("Program name mismatch. Expected: %s, Found: %s\n", userProgName, fileProgName);
+        fclose(fp);
+        return 1;  // Return non-zero for error
+    }
 
-        adrctr = atoi(strtadr);
+    while (!feof(fp)) {
+        fscanf(fp, "%s", line); // Read the next line
+        if (line[0] == 'T') {
+            sscanf(line, "T^%6s^%*s", staddr);   // Extract the starting address
+            staddr1 = (int)strtol(staddr, NULL, 16);  // Convert to integer
+            i = 12;  // Start after the address and length fields
 
-        while (strcmp(objcd, "T") != 0) {
-            if (strcmp(objcd, "E") == 0) {
-                break;
+            while (i < strlen(line) && line[i] != '$') {
+                if (line[i] != '^') { // Skip the '^'
+                    printf("%04X\t", staddr1); // Print the starting address
+                    for (j = 0; j < 6 && line[i + j] != '\0' && line[i + j] != '^' && line[i + j] != '$'; j++) {
+                        printf("%c", line[i + j]); // Print each character of the object code
+                    }
+                    printf("\n"); // Newline after each object code segment
+                    staddr1 += 3; // Increment address by 3
+                    i += j; // Move to the next object code segment
+                } else {
+                    i++;
+                }
             }
-
-            inttemp = atoi(objcd);
-            obj[i + 2] = inttemp % 100;
-            inttemp = inttemp / 100;
-            obj[i + 1] = inttemp % 100;
-            inttemp = inttemp / 100;
-            obj[i] = inttemp % 100;
-            inttemp = inttemp / 100;
-
-            adr[i++] = adrctr++;
-            adr[i++] = adrctr++;
-            adr[i++] = adrctr++;
-
-            fscanf(fp, "%s", objcd);
         }
-
-        strcpy(col1, objcd);
-    }
-
-    printf("Addresses\tObject Codes\n");
-    for (j = 0; j < i; j++) {
-        printf("00%d\t\t", adr[j]);
-        if (obj[j] < 10) {
-            printf("0");
-        }
-        printf("%d\n", obj[j]);
     }
 
     fclose(fp);
+    return 0;  // Return 0 for successful execution
 }
