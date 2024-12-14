@@ -1,88 +1,80 @@
-#include<stdio.h>
-#include<stdlib.h>
-#include<math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
 
 struct process
 {
     int pid;
     int psize;
-    int frames[20];
+    int frames[30];
     int frames_allocated;
-} p[100];
+    int int_frag;
+}p[100];
 
 struct frame
 {
     int avail;
-    int frag;
-};
+}f[100];
 
-int total_frames = 0;
-int num_process = 0;
-int avail_frames = 0;
 int fsize;
+int total_frames;
+int avail_frames;
+int num_process;
 
-void insertprocess(int pid, int psize, struct frame f[100], int frames_req)
+void insertprocess(int pid,int psize,int process_frames,int process_frag)
 {
-    if (frames_req > avail_frames)
+    if(process_frames>avail_frames)
     {
-        printf("Not enough frames available\n");
+        printf("Not enough frames available for process");
         return;
     }
 
-    p[num_process].pid = pid;
-    p[num_process].psize = psize;
-    p[num_process].frames_allocated = 0;
-    for (int i = 0; i < 20; i++)
+    int j=0;
+    p[num_process].pid=pid;
+    p[num_process].psize=psize;
+    p[num_process].int_frag=process_frag;
+    p[num_process].frames_allocated=process_frames;
+    for (int i=0; i<total_frames && j<process_frames;i++)
     {
-        p[num_process].frames[i] = -1; // Initialize frame allocation array
-    }
-
-    int j = 0;
-    for (int i = 0; i < total_frames && j < frames_req; i++)
-    {
-        if (f[i].avail == -1) // Frame is available
+        if(f[i].avail==-1)
         {
-            f[i].avail = 1; // Mark frame as occupied
-            p[num_process].frames[j] = i; // Allocate frame to process
+            f[i].avail=1;
+            p[num_process].frames[j]=i;
             j++;
-            p[num_process].frames_allocated++;
         }
     }
 
-    avail_frames -= frames_req;
+    avail_frames -= process_frames;
     num_process++;
-    printf("Process allocated successfully.\n");
+    printf("Process allocated successfully\n");
 }
 
-void deleteprocess(int pid, struct frame f[100])
+void deleteprocess(int pid)
 {
     int i;
-    for (i = 0; i < num_process; i++)
+    for (i=0;i<num_process;i++)
     {
-        if (p[i].pid == pid)
+        if(p[i].pid==pid)
         {
             break;
         }
     }
 
-    if (i < num_process) // Process found
+    if(i<num_process)
     {
-        for (int j = 0; j < p[i].frames_allocated; j++)
+        for(int j=0;j<p[i].frames_allocated;j++)
         {
             int frame_idx = p[i].frames[j];
-            f[frame_idx].avail = -1; // Free the frame
-            avail_frames++;
+            f[frame_idx].avail=-1;
         }
+        avail_frames+=p[i].frames_allocated;
 
-        printf("Process %d deleted successfully.\n", pid);
-
-        // Shift remaining processes up to fill the gap
-        for (int k = i; k < num_process - 1; k++)
+        for(int k=i;k<num_process;k++)
         {
-            p[k] = p[k + 1];
+            p[k]=p[k+1];
         }
-
         num_process--;
+        printf("Process deleted");
     }
     else
     {
@@ -90,84 +82,71 @@ void deleteprocess(int pid, struct frame f[100])
     }
 }
 
-void display(struct frame f[100])
+void display()
 {
-    printf("PID\tFrames Allocated\n");
-    printf("----------------------------\n");
+    printf("\nPROCESS ID\tFRAMES OCCUPIED\tFRAMES\tINTERNAL FRAGMENTATION\n");
+    int total_internal_frag = 0;
 
     for (int i = 0; i < num_process; i++)
     {
-        printf("%d\t", p[i].pid);
+        printf("%d\t\t", p[i].pid);
+        printf("%d\t\t", p[i].frames_allocated);
         for (int j = 0; j < p[i].frames_allocated; j++)
         {
             printf("%d ", p[i].frames[j]);
         }
+        printf("\t\t");
+        printf("%d\t\t", p[i].int_frag);
+        total_internal_frag+=p[i].int_frag;
         printf("\n");
     }
-
-    int total_internal_frag = 0;
-    for (int i = 0; i < num_process; i++)
-    {
-        int allocated_memory = p[i].frames_allocated * fsize;
-        int internal_frag = allocated_memory - p[i].psize;
-        total_internal_frag += internal_frag;
-    }
-
     printf("\nTotal Internal Fragmentation: %d\n", total_internal_frag);
 }
 
 void main()
 {
-    int msize;
-    printf("Enter the memory size: ");
-    scanf("%d", &msize);
-    printf("Enter the size of frame: ");
-    scanf("%d", &fsize);
-    total_frames = msize / fsize;
+    int psize,msize;
+    printf("Enter total memory size:");
+    scanf("%d",&msize);
+    printf("Enter frame size:");
+    scanf("%d",&fsize);
+    total_frames=msize/fsize;
+    printf("No. of frames available:%d",total_frames);
 
-    struct frame f[100];
-    for (int i = 0; i < total_frames; i++)
+    for (int i=0;i<100;i++)
     {
-        f[i].avail = -1; // Initialize all frames as free
-        f[i].frag = fsize; // Initialize fragmentation size
+        f[i].avail=-1;
     }
+    avail_frames=total_frames;
 
-    avail_frames = total_frames;
-
-    int ch, pid, psize;
-    while (1)
+    while(1)
     {
-        printf("\n1. Create Process\t2. Delete Process\t3. Display Processes\t4. Exit\n");
+        int ch,pid,psize,frag;
+        printf("\n\n1-CREATE PROCESS\n2-DELETE PROCESS\n3-DISPLAY PROCESS\n");
         printf("Enter choice: ");
         scanf("%d", &ch);
-
-        switch (ch)
+        switch(ch)
         {
             case 1:
                 printf("Enter Process ID: ");
                 scanf("%d", &pid);
                 printf("Enter Process Size: ");
                 scanf("%d", &psize);
-                int frames_req = ceil((float)psize / fsize); // Calculate required frames
-                insertprocess(pid, psize, f, frames_req);
+                int p_frames=ceil((float)psize/fsize);
+                int frame_allocated_memory=p_frames*fsize;
+                int frag=frame_allocated_memory-psize;
+                insertprocess(pid,psize,p_frames,frag);
                 break;
 
             case 2:
                 printf("Enter PID of process to delete: ");
                 scanf("%d", &pid);
-                deleteprocess(pid, f);
+                deleteprocess(pid);
                 break;
 
             case 3:
-                display(f);
+                display();
                 break;
-
-            case 4:
-                exit(0);
-                break;
-
-            default:
-                printf("Invalid choice. Please try again.\n");
         }
     }
 }
