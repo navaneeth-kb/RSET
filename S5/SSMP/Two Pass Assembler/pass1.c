@@ -63,10 +63,6 @@ void main()
 
         if((strcmp(label,"-")!=0) && (!duplicate_label(symtab,symtab_count,label)))
         {
-            if (symtab_count >= 100) {
-                printf("Error: Symbol table overflow\n");
-                exit(1);
-            }
             strcpy(symtab[symtab_count++], label);
             fprintf(symtab_ptr, "%s\t%X\n", label, locctr);
         }
