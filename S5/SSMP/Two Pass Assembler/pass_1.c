@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -69,7 +68,7 @@ int main() {
 
         // Calculate length based on opcode
         if (strcmp(opcode, "BYTE") == 0) {
-            length = (operand[0] == 'X') ? (strlen(operand) - 3) / 2 : strlen(operand) - 5;
+            length = strlen(operand) - 3;
         } else if (strcmp(opcode, "WORD") == 0) {
             length = 3;
         } else if (strcmp(opcode, "RESB") == 0) {
