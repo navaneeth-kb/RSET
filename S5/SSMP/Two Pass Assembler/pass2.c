@@ -44,8 +44,8 @@ int searchsymtab(char *op)
             return adr;
         }
     }
-    return -1;
     fclose(symtab_ptr);
+    return -1;
 }
 
 void main()
