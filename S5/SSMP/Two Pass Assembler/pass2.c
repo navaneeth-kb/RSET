@@ -21,8 +21,8 @@ char *searchoptab(char *opc)
             return code;
         }
     }
-    return NULL;
     fclose(optab_ptr);
+    return NULL;
 }
 
 int adr;
