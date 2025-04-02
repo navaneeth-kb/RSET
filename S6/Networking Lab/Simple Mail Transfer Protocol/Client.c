@@ -1,10 +1,20 @@
-#include <stdio.h> #include <stdlib.h> #include <string.h> #include <unistd.h> #include <arpa/inet.h>
+#include <stdio.h> 
+#include <stdlib.h> 
+#include <string.h> 
+#include <unistd.h> 
+#include <arpa/inet.h>
 
-#define PORT 8091 #define BUFFER_SIZE 1024
+#define PORT 8091 
+#define BUFFER_SIZE 1024
 
-// Function to check if email is a Gmail address int is_gmail_address(const char *email) { return strstr(email, "@gmail.com") != NULL; }
+// Function to check if email is a Gmail address int is_gmail_address(const char *email) 
+{ 
+   return strstr(email, "@gmail.com") != NULL; 
+}
 
-int main() { int client_socket; struct sockaddr_in server_addr; char buffer[BUFFER_SIZE]; char sender_email[100], recipient_email[100], email_body[BUFFER_SIZE];
+int main() 
+{ 
+int client_socket; struct sockaddr_in server_addr; char buffer[BUFFER_SIZE]; char sender_email[100], recipient_email[100], email_body[BUFFER_SIZE];
 
 // Get valid Gmail addresses
 do {
