@@ -3,15 +3,17 @@
 #include <string.h>
 #include <unistd.h>
 #include <arpa/inet.h>
+#include <sys/time.h>
 
 #define PORT 8091
-#define BUFFER_SIZE 1024
-#define TIMEOUT_SEC 5
+#define BUFFER_SIZE 2048
+#define TIMEOUT 3
 
 int main() {
     int client_socket;
     struct sockaddr_in server_addr;
     char buffer[BUFFER_SIZE];
+    int seq_num = 0;  // Initial sequence number
 
     // Create socket
     client_socket = socket(AF_INET, SOCK_STREAM, 0);
@@ -31,34 +33,51 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
-    // Set socket receive timeout
-    struct timeval timeout;
-    timeout.tv_sec = TIMEOUT_SEC;  // Timeout in seconds
-    timeout.tv_usec = 0;           // Timeout in microseconds
-    if (setsockopt(client_socket, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout)) < 0) {
-        perror("Error setting socket timeout");
-        exit(EXIT_FAILURE);
-    }
-
     while (1) {
-        printf("Enter message to send to server (type 'exit' to quit): ");
-        fgets(buffer, BUFFER_SIZE, stdin);
+        printf("\nEnter message to send to server (type 'exit' to quit): ");
+        fgets(buffer, BUFFER_SIZE - 10, stdin);
 
-        // Send message to server
-        send(client_socket, buffer, strlen(buffer), 0);
-        if (strcmp(buffer, "exit\n") == 0)
+        if (strcmp(buffer, "exit\n") == 0) {
             break;
+        }
 
-        // Receive response from server (with timeout)
-        memset(buffer, 0, BUFFER_SIZE);
-        ssize_t recv_size = recv(client_socket, buffer, BUFFER_SIZE, 0);
+        char message[BUFFER_SIZE];
+        sprintf(message, "%d:%s", seq_num, buffer);  // Add sequence number to message
 
-        if (recv_size < 0) {
-            printf("Error or timeout waiting for ACK. Resending message...\n");
-            // Resend the message
-            send(client_socket, buffer, strlen(buffer), 0);
-        } else {
-            printf("Received from server: %s\n", buffer);
+        int ack_received = 0;
+        while (!ack_received) {
+            // Send message to server
+            send(client_socket, message, strlen(message), 0);
+
+            // Set up timeout for ACK
+            fd_set read_fds;
+            struct timeval timeout;
+            FD_ZERO(&read_fds);
+            FD_SET(client_socket, &read_fds);
+            timeout.tv_sec = TIMEOUT;
+            timeout.tv_usec = 0;
+
+            int timer = select(client_socket + 1, &read_fds, NULL, NULL, &timeout);
+
+            if (timer == -1) {
+                printf("Error selecting.\n");
+                break;
+            } else if (timer == 0) {
+                printf("Timed out: No ACK received, retransmitting...\n");
+            } else {
+                // Receive ACK from server
+                memset(buffer, 0, BUFFER_SIZE);
+                recv(client_socket, buffer, BUFFER_SIZE, 0);
+
+                int received_ack;
+                if (sscanf(buffer, "ACK:%d", &received_ack) == 1 && received_ack == seq_num) {
+                    printf("Received from server: %s\n", buffer);
+                    seq_num = 1 - seq_num;  // Toggle sequence number
+                    ack_received = 1;
+                } else {
+                    printf("Incorrect ACK received, retransmitting...\n");
+                }
+            }
         }
     }
 
