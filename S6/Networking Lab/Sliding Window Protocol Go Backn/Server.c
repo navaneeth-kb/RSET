@@ -8,7 +8,8 @@
 #define PORT 8102
 #define BUFFER_SIZE 1024
 
-int main() {
+int main() 
+{
 	srand(time(NULL)); // Seed for random ACK loss simulation
 	
 	int server_socket, client_socket;
@@ -19,7 +20,8 @@ int main() {
 	
 	// Create socket
 	server_socket = socket(AF_INET, SOCK_STREAM, 0);
-	if (server_socket == -1) {
+	if (server_socket == -1) 
+	{
 		perror("Error creating socket");
 		exit(EXIT_FAILURE);
 	}
@@ -30,14 +32,16 @@ int main() {
 	server_addr.sin_port = htons(PORT);
 	
 	// Bind the socket
-	if (bind(server_socket, (struct sockaddr*)&server_addr, sizeof(server_addr)) == -1) {
+	if (bind(server_socket, (struct sockaddr*)&server_addr, sizeof(server_addr)) == -1) 
+	{
 		perror("Error binding socket");
 		close(server_socket);
 		exit(EXIT_FAILURE);
 	}
 	
 	// Listen for incoming connections
-	if (listen(server_socket, 5) == -1) {
+	if (listen(server_socket, 5) == -1) 
+	{
 		perror("Error listening on socket");
 		close(server_socket);
 		exit(EXIT_FAILURE);
@@ -46,13 +50,15 @@ int main() {
 	
 	// Accept a connection from a client
 	client_socket = accept(server_socket, (struct sockaddr*)&client_addr, &addr_size);
-	if (client_socket == -1) {
+	if (client_socket == -1) 
+	{
 		perror("Error accepting connection");
 		close(server_socket);
 		exit(EXIT_FAILURE);
 	}
 	
-	while (1) {
+	while (1) 
+	{
 		memset(buffer, 0, BUFFER_SIZE);
 		recv(client_socket, buffer, BUFFER_SIZE, 0);
 		int seq_num, number;
