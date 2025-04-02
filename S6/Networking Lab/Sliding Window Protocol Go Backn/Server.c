@@ -4,8 +4,10 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <time.h>
+
 #define PORT 8102
 #define BUFFER_SIZE 1024
+
 int main() {
 	srand(time(NULL)); // Seed for random ACK loss simulation
 	
