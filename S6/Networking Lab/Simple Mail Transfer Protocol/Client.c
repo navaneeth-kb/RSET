@@ -7,7 +7,8 @@
 #define PORT 8091 
 #define BUFFER_SIZE 1024
 
-// Function to check if email is a Gmail address int is_gmail_address(const char *email) 
+// Function to check if email is a Gmail address
+int is_gmail_address(const char *email) 
 { 
 return strstr(email, "@gmail.com") != NULL; 
 }
