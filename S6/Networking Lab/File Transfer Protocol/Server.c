@@ -3,148 +3,121 @@
 #include <string.h>
 #include <unistd.h>
 #include <arpa/inet.h>
+#include <linux/limits.h>
 #include <dirent.h>
-#include <sys/stat.h>
 
-#define PORT 5098
-#define BUFFER_SIZE 2024
-#define SERVER_DIR "server_files" // Directory to store files
-
-// Function to ensure the server directory exists
-void create_server_directory() {
-    struct stat st;
-    if (stat(SERVER_DIR, &st) == -1) {
-        mkdir(SERVER_DIR, 0777); // Create directory if it doesn't exist
-    }
-}
-
-// Function to handle client requests
-void handle_client(int client_sock) {
-    char buffer[BUFFER_SIZE], filepath[BUFFER_SIZE];
-    int bytes_read;
-
-    // Send welcome message
-    send(client_sock, "220 FTP Server Ready\r\n", 22, 0);
-
-    while (1) {
-        memset(buffer, 0, BUFFER_SIZE);
-        bytes_read = recv(client_sock, buffer, BUFFER_SIZE - 1, 0);
-        if (bytes_read <= 0) {
-            break; // Connection closed or error
-        }
-
-        buffer[bytes_read] = '\0'; // Ensure null termination
-        printf("C: %s", buffer);
-
-        if (strncmp(buffer, "PWD", 3) == 0) {
-            // Respond with server directory
-            snprintf(buffer, BUFFER_SIZE, "257 \"%s\" is the current directory\r\n", SERVER_DIR);
-            send(client_sock, buffer, strlen(buffer), 0);
-        } 
-        else if (strncmp(buffer, "LIST", 4) == 0) {
-            // List files in the server directory
-            DIR *dir = opendir(SERVER_DIR);
-            if (!dir) {
-                send(client_sock, "550 Failed to open directory\r\n", 30, 0);
-                continue;
-            }
-            struct dirent *entry;
-            while ((entry = readdir(dir)) != NULL) {
-                if (entry->d_name[0] != '.') { // Skip hidden files
-                    snprintf(buffer, BUFFER_SIZE, "%s\r\n", entry->d_name);
-                    send(client_sock, buffer, strlen(buffer), 0);
-                }
-            }
-            closedir(dir);
-        } 
-        else if (strncmp(buffer, "RETR", 4) == 0) {
-            // Extract filename
-            char *filename = strchr(buffer, ' ');
-            if (!filename) {
-                send(client_sock, "500 Missing filename\r\n", 22, 0);
-                continue;
-            }
-            filename++; // Move past space
-            filename[strcspn(filename, "\r\n")] = '\0'; // Remove newline
-
-            // Construct full file path
-            snprintf(filepath, BUFFER_SIZE, "%s/%s", SERVER_DIR, filename);
-            FILE *file = fopen(filepath, "rb");
-            if (!file) {
-                send(client_sock, "550 File not found\r\n", 20, 0);
-                continue;
-            }
-
-            // Send file contents
-            send(client_sock, "150 Opening data connection\r\n", 29, 0);
-            while ((bytes_read = fread(buffer, 1, BUFFER_SIZE, file)) > 0) {
-                send(client_sock, buffer, bytes_read, 0);
-            }
-            fclose(file);
-            send(client_sock, "226 Transfer complete\r\n", 23, 0);
-        } 
-        else if (strncmp(buffer, "QUIT", 4) == 0) {
-            send(client_sock, "221 Bye\r\n", 10, 0);
-            break;
-        } 
-        else {
-            send(client_sock, "500 Command not recognized\r\n", 28, 0);
-        }
-    }
-    close(client_sock);
-}
+#define PORT 8091
+#define BUFFER_SIZE 1024
 
 int main() {
-    int server_sock, client_sock;
+    int server_socket, client_socket;
     struct sockaddr_in server_addr, client_addr;
-    socklen_t client_len = sizeof(client_addr);
+    socklen_t addr_size = sizeof(struct sockaddr_in);
+    char buffer[BUFFER_SIZE];
+    int state = 0;
 
-    // Ensure the server directory exists
-    create_server_directory();
+    // Directory
+    DIR *dir;
+    struct dirent *entry;
 
     // Create socket
-    server_sock = socket(AF_INET, SOCK_STREAM, 0);
-    if (server_sock < 0) {
-        perror("Socket creation failed");
-        exit(1);
+    server_socket = socket(AF_INET, SOCK_STREAM, 0);
+    if (server_socket == -1) {
+        perror("Error creating socket");
+        exit(EXIT_FAILURE);
     }
 
-    // Set socket options
-    int opt = 1;
-    setsockopt(server_sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
-
     // Configure server address
-    memset(&server_addr, 0, sizeof(server_addr));
     server_addr.sin_family = AF_INET;
     server_addr.sin_addr.s_addr = INADDR_ANY;
     server_addr.sin_port = htons(PORT);
 
-    // Bind socket
-    if (bind(server_sock, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
-        perror("Bind failed");
-        exit(1);
+    // Bind the socket
+    if (bind(server_socket, (struct sockaddr*)&server_addr, sizeof(server_addr)) == -1) {
+        perror("Error binding socket");
+        close(server_socket);
+        exit(EXIT_FAILURE);
     }
 
-    // Listen for connections
-    if (listen(server_sock, 5) < 0) {
-        perror("Listen failed");
-        exit(1);
-    }
+    // Listen for incoming connections
+    listen(server_socket, 5);
+    printf("Server listening on port %d...\n", PORT);
 
-    printf("FTP Server running on port %d...\n", PORT);
+    // Accept a connection from a client
+    client_socket = accept(server_socket, (struct sockaddr*)&client_addr, &addr_size);
+    if (client_socket == -1) {
+        perror("Error accepting connection");
+        close(server_socket);
+        exit(EXIT_FAILURE);
+    }
 
     while (1) {
-        client_sock = accept(server_sock, (struct sockaddr *)&client_addr, &client_len);
-        if (client_sock < 0) {
-            perror("Accept failed");
-            continue;
+        // Receive message from client
+        memset(buffer, 0, BUFFER_SIZE);
+        int bytes_received = recv(client_socket, buffer, BUFFER_SIZE - 1, 0);
+        if (bytes_received <= 0) {
+            perror("Error receiving data or connection closed");
+            break;
         }
-        printf("Client connected: %s:%d\n",
-               inet_ntoa(client_addr.sin_addr),
-               ntohs(client_addr.sin_port));
-        handle_client(client_sock);
+        
+        buffer[strcspn(buffer, "\r\n")] = 0; // Removing newline to rectify strcmp
+        buffer[bytes_received] = '\0'; // Ensure null termination
+        printf("Client: %s\n", buffer);
+        
+        char response[BUFFER_SIZE];
+
+        if ((strcmp(buffer, "PWD") == 0) && state == 0) {
+            char cwd[1024];
+            if (getcwd(cwd, sizeof(cwd)) != NULL) {
+                snprintf(response, BUFFER_SIZE, "Current working dir: %s\n", cwd);
+            }
+            state = 1;
+        } 
+        else if (strcmp(buffer, "LIST") == 0 && state == 1) {
+            dir = opendir(".");
+            if (dir == NULL) {
+                snprintf(response, BUFFER_SIZE, "Failed to open directory\n");
+            } else {
+                response[0] = '\0';
+                while ((entry = readdir(dir)) != NULL) {
+                    strcat(response, entry->d_name);
+                    strcat(response, ", ");
+                }
+                closedir(dir);
+            }
+            state = 2;
+        } 
+        else if (strcmp(buffer, "RETR") == 0 && state == 2) {
+            snprintf(response, BUFFER_SIZE, "Enter file name:");
+            state = 3;
+        } 
+        else if (state == 3) {
+            FILE *file = fopen(buffer, "rb");
+            if (file == NULL) {
+                snprintf(response, BUFFER_SIZE, "Error: File not found\n");
+                send(client_socket, response, strlen(response), 0);
+                state = 2;
+                continue;
+            }
+            printf("Sending file content\n");
+            while (!feof(file)) {
+                size_t bytes_read = fread(buffer, 1, BUFFER_SIZE, file);
+                send(client_socket, buffer, bytes_read, 0);
+            }
+            fclose(file);
+            state = 4;
+            continue;
+        } 
+        else if (state == 4) {
+            snprintf(response, BUFFER_SIZE, "Bye");
+            send(client_socket, response, strlen(response), 0);
+            break;
+        }
+
+        send(client_socket, response, strlen(response), 0);
     }
 
-    close(server_sock);
+    close(client_socket);
+    close(server_socket);
     return 0;
 }
