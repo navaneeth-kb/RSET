@@ -9,12 +9,10 @@
 
 // Function to check if email is a Gmail address int is_gmail_address(const char *email) 
 { 
-   return strstr(email, "@gmail.com") != NULL; 
+return strstr(email, "@gmail.com") != NULL; 
 }
 
-int main() 
-{ 
-int client_socket; struct sockaddr_in server_addr; char buffer[BUFFER_SIZE]; char sender_email[100], recipient_email[100], email_body[BUFFER_SIZE];
+int main() { int client_socket; struct sockaddr_in server_addr; char buffer[BUFFER_SIZE]; char sender_email[100], recipient_email[100], email_body[BUFFER_SIZE];
 
 // Get valid Gmail addresses
 do {
