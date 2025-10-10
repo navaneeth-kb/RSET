@@ -57,15 +57,15 @@ void main()
                 stack[top]='\0';
                 strcat(stack,p[j].left);
                 printf("stack:%s   ",stack);
-           printf("input:");
-           for(int k=i;k<strlen(input);k++)
-           {
-               printf("%c",input[k]);
-           }
-           printf("   ");
-           printf("Reduce %s->%s",p[j].left,p[j].right);
-           printf("\n");
-            j=-1;
+                printf("input:");
+                for(int k=i;k<strlen(input);k++)
+                {
+                    printf("%c",input[k]);
+                }
+                printf("   ");
+                printf("Reduce %s->%s",p[j].left,p[j].right);
+                printf("\n");
+                j=-1;
             }
            
         }
