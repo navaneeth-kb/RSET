@@ -5,7 +5,6 @@
 #define MAX 20 
  
 char productions[MAX][MAX];   // Grammar productions 
-char firstSets[MAX][MAX];     // Store FIRST sets 
 int n;                        // Number of productions 
  
  
@@ -27,27 +26,27 @@ int main() {
     // Compute FIRST for each non-terminal 
     int visited[256] = {0};   // Mark non-terminals we have printed 
  
- for (i = 0; i < n; i++) { 
-     char nonTerminal = productions[i][0]; 
+    for (i = 0; i < n; i++) { 
+      char nonTerminal = productions[i][0]; 
  
-     if (!visited[(int)nonTerminal]) { 
-  char result[MAX]; 
-  result[0] = '\0'; 
- 
-  findFirst(result, nonTerminal); 
- 
-  printf("FIRST(%c) = { ", nonTerminal); 
-  for (int j = 0; result[j] != '\0'; j++) { 
-      printf("%c ", result[j]); 
-  } 
-  printf("}\n"); 
- 
-  visited[(int)nonTerminal] = 1;  // Mark as printed 
-     } 
- } 
- 
- 
-    return 0; 
+      if (!visited[(int)nonTerminal]) 
+      { 
+        char result[MAX]; 
+        result[0] = '\0'; 
+   
+        findFirst(result, nonTerminal); 
+   
+        printf("FIRST(%c) = { ", nonTerminal); 
+        for (int j = 0; result[j] != '\0'; j++) 
+        { 
+            printf("%c ", result[j]); 
+        } 
+        printf("}\n"); 
+       
+        visited[(int)nonTerminal] = 1;  // Mark as printed 
+      } 
+   } 
+   return 0; 
 } 
  
  
