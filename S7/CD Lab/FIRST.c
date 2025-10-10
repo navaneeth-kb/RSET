@@ -50,60 +50,75 @@ int main() {
 } 
  
  
-void findFirst(char result[], char symbol) { 
-    int i, j, k; 
- 
-    // If symbol is a terminal, add it to result 
-    if (!isupper(symbol)) { 
-        addToFirst(result, symbol); 
-        return; 
-    } 
- 
-    // Check all productions with LHS = symbol 
-    for (i = 0; i < n; i++) { 
-        if (productions[i][0] == symbol) { 
-            // If RHS is epsilon 
-            if (productions[i][2] == '#') {  // Assume # as epsilon 
-                addToFirst(result, '#'); 
-            }  
-            else { 
-                // For each symbol in RHS 
-                for (j = 2; j < strlen(productions[i]); j++) { 
-                    char nextSym = productions[i][j]; 
- 
-                    // If terminal, add it 
-                    if (!isupper(nextSym)) { 
-                        addToFirst(result, nextSym); 
-                        break; 
-                    }  
-                    else { 
-                        // If non-terminal, compute FIRST recursively 
-                        char temp[MAX]; 
-                        temp[0] = '\0'; 
-                        findFirst(temp, nextSym); 
- 
-                        for (k = 0; temp[k] != '\0'; k++) { 
-                            if (temp[k] != '#') { 
-                                addToFirst(result, temp[k]); 
-                            } else { 
-                                // If epsilon, check next symbol 
-                                if (productions[i][j+1] == '\0') {   
-//if # is last symbol in RHS 
-                                    addToFirst(result, '#'); 
-                                } 
-                                continue; 
-                            } 
-                        } 
- 
-                        // If epsilon not in FIRST, stop 
-                        if (strchr(temp, '#') == NULL) { 
-                            break; 
-                        } 
-                    } 
-                } 
+void findFirst(char result[], char symbol) 
+{ 
+  int i, j, k; 
+  
+  // If symbol is a terminal, add it to result 
+  if (!isupper(symbol)) 
+  { 
+    addToFirst(result, symbol); 
+    return; 
+  } 
+  
+  // Check all productions with LHS = symbol 
+  for (i = 0; i < n; i++) 
+  { 
+    if (productions[i][0] == symbol) 
+    { 
+      // If RHS is epsilon 
+      if (productions[i][2] == '#') 
+      {  // Assume # as epsilon 
+        addToFirst(result, '#'); 
+      }  
+      else 
+      { 
+        // For each symbol in RHS 
+        for (j = 2; j < strlen(productions[i]); j++) 
+        { 
+          char nextSym = productions[i][j]; 
+          
+          // If terminal, add it 
+          if (!isupper(nextSym)) 
+          { 
+            addToFirst(result, nextSym); 
+            break; 
+          }  
+          else 
+          { 
+            // If non-terminal, compute FIRST recursively 
+            char temp[MAX]; 
+            temp[0] = '\0'; 
+            findFirst(temp, nextSym); 
+            
+            for (k = 0; temp[k] != '\0'; k++) 
+            { 
+              if (temp[k] != '#') 
+              { 
+                addToFirst(result, temp[k]); 
+              } 
+              else 
+              { 
+                 // If epsilon, check next symbol 
+                 if (productions[i][j+1] == '\0') 
+                 {   
+                   //if # is last symbol in RHS 
+                   addToFirst(result, '#'); 
+                 } 
+                 continue; 
+              } 
             } 
+          
+            // If epsilon not in FIRST, stop 
+            if (strchr(temp, '#') == NULL) 
+            { 
+              break; 
+            } 
+          } 
         } 
+      } 
     } 
+  } 
 } 
 // Add unique symbols to FIRST set 
 void addToFirst(char result[], char symbol) { 
