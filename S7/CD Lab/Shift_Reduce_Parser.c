@@ -36,15 +36,15 @@ void main()
              ch[1]='\0';
              i++;
              strcat(stack,ch);
-               printf("stack:%s   ",stack);
-           printf("input:");
-           for(int k=i;k<strlen(input);k++)
-           {
-               printf("%c",input[k]);
-           }
-           printf("   ");
-           printf("shift");
-           printf("\n");
+             printf("stack:%s   ",stack);
+             printf("input:");
+             for(int k=i;k<strlen(input);k++)
+             {
+                 printf("%c",input[k]);
+             }
+             printf("   ");
+             printf("shift");
+             printf("\n");
         }
         for(j=0;j<rule;j++)
         {
