@@ -25,7 +25,8 @@ int precedence(char c)
 }
 
 // Convert infix to postfix
-void infixToPostfix(char infix[], char postfix[]) {
+void infixToPostfix(char infix[], char postfix[]) 
+{
   int i, k = 0;
   for (i = 0; infix[i] != '\0'; i++) 
   {
@@ -103,5 +104,3 @@ int main()
   generateTAC(postfix, lhs);
   return 0;
 }
-
-explain line by line
