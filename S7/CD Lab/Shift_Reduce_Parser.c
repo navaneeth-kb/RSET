@@ -1,84 +1,87 @@
-# include<stdio.h>
-# include<string.h>
-# include<stdlib.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
-struct pro
-{
+struct Production{
     char left[10];
     char right[10];
 };
 
-void main()
+int main()
 {
-    int i=0,top,sl,subl,rule,j=0;
-    char *token1,*token2,*sub,input[20],ch[20],stack[20],production[20];
-    struct pro p[10];
-    printf("Enter the total no of productions");
-    scanf("%d",&rule);
-    for(int i=0;i<rule;i++)
+    int prod_num;
+    struct Production p[10];
+    char prod_str[10];
+
+    printf("Enter the number of productions:");
+    scanf("%d",&prod_num);
+    for (int i=0;i<prod_num;i++)
     {
-        printf("Enter the %d production\n",i+1);
-        scanf("%s",production);
-        token1=strtok(production,"->");
-        token2=strtok(NULL,"->");
-        strcpy(p[i].left,token1);
-        strcpy(p[i].right,token2);
+        printf("Enter production %d (e.g., E->E+T): ", i + 1);
+        scanf("%s",prod_str);
+
+        char *lhs=strtok(prod_str,"->");
+        char *rhs=strtok(NULL,"->");
+
+        strcpy(p[i].left,lhs);
+        strcpy(p[i].right,rhs);
     }
-    printf("Enter the input\n");
-    scanf("%s",input);
-    ch[0]='\0';
+
+    char input[10];
+    printf("Enter the input string: ");
+    scanf("%s", input);
+
+    char stack[10],curr[10];
     stack[0]='\0';
+    curr[0]='\0';
+    int ind=0;
+
+    printf("\n--- Shift Reduce Parsing Steps ---\n\n");
     while(1)
     {
-        if(i<strlen(input))
+        //Shift
+        if (ind<strlen(input))
         {
-             ch[0]=input[i];
-             ch[1]='\0';
-             i++;
-             strcat(stack,ch);
-             printf("stack:%s   ",stack);
-             printf("input:");
-             for(int k=i;k<strlen(input);k++)
-             {
-                 printf("%c",input[k]);
-             }
-             printf("   ");
-             printf("shift");
-             printf("\n");
+            curr[0]=input[ind];
+            curr[1]='\0';
+            ind++;
+
+            strcat(stack,curr);
+
+            printf("Stack:%s   Input:%s   Action:Shift\n",stack,input+ind);
         }
-        for(j=0;j<rule;j++)
+
+        //Reduce
+        int reduced=0;
+        for (int i=0;i<prod_num;i++)
         {
-            sub=strstr(stack,p[j].right);
-            if(sub!=NULL)
+            char *found=strstr(stack,p[i].right);;
+            if (found!=NULL)
             {
-                subl=strlen(p[j].right);
-                sl=strlen(stack);
-                top=sl-subl;
-                stack[top]='\0';
-                strcat(stack,p[j].left);
-                printf("stack:%s   ",stack);
-                printf("input:");
-                for(int k=i;k<strlen(input);k++)
-                {
-                    printf("%c",input[k]);
-                }
-                printf("   ");
-                printf("Reduce %s->%s",p[j].left,p[j].right);
-                printf("\n");
-                j=-1;
+                int right_len=strlen(p[i].right);
+                int stack_len=strlen(stack);
+
+                int temp=stack_len-right_len;
+                stack[temp]='\0';
+                strcat(stack,p[i].left);
+
+                printf("Stack:%s   Input:%s   Action:Reduce from %s to %s\n",stack,input+ind,p[i].left,p[i].right);
+
+                reduced=1;
+                i=-1;
             }
-           
         }
-        if(strcmp(stack,p[0].left)==0 && i==strlen(input))
-        {
-            printf("Parsing sucessfull\n");
+
+        // --- Check for Acceptance or Rejection ---
+        if (strcmp(stack, p[0].left) == 0 && ind == strlen(input)) {
+            printf("\nParsing Successful!\n");
             break;
         }
-        else if(i==strlen(input))
-        {
-             printf("Parsing Not sucessfull\n");
+        else if (ind == strlen(input) && !reduced) {
+            printf("\nParsing Failed.\n");
             break;
         }
-        
     }
+
+    return 0;
 }
