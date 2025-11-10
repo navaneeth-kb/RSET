@@ -1,119 +1,157 @@
 #include <stdio.h>
-#include <string.h>
+#include <stdlib.h>
 
-#define MAX_STATES 20
-#define MAX_ALPHABET 20
+#define MAX 20
 
-int nfa[MAX_STATES][MAX_ALPHABET][MAX_STATES]; // nfa[state][symbol][state] = 1 if transition exists
-int dfa[MAX_STATES][MAX_ALPHABET];
-int nfa_states, symbols;
-char symbol[MAX_ALPHABET];
-int dfa_states_count = 0;
+int NFA[MAX][MAX][MAX];
+int DFA[MAX][MAX];
+int DFA_states[MAX][MAX];
+int nfa_count;
+int nfa_symbols;
+int dfa_count=0;
+int visited[MAX];
+char symbols[MAX];
 
-// To store DFA states as sets of NFA states
-int dfa_states[MAX_STATES][MAX_STATES];
-int marked[MAX_STATES];
-
-// Check if DFA state already exists
-int state_exists(int state[], int count) {
-    for (int i = 0; i < dfa_states_count; i++) {
-        int match = 1;
-        for (int j = 0; j < nfa_states; j++) {
-            if (dfa_states[i][j] != state[j]) {
-                match = 0;
+int findState(int state[])
+{
+    for (int i=0;i<dfa_count;i++)
+    {
+        int same=1;
+        for (int j=0;j<nfa_count;j++)
+        {
+            if (DFA_states[i][j] != state[j])
+            {
+                same = 0;
                 break;
             }
         }
-        if (match) return i;
+        if (same==1)
+        {
+            return i;
+        }
     }
     return -1;
 }
 
-// Add new DFA state
-int add_state(int state[]) {
-    for (int i = 0; i < nfa_states; i++) {
-        dfa_states[dfa_states_count][i] = state[i];
+int addState(int state[])
+{
+    for (int i=0;i<nfa_count;i++)
+    {
+        DFA_states[dfa_count][i]=state[i];
     }
-    return dfa_states_count++;
+    return dfa_count++;
 }
 
-int main() {
-    printf("Enter number of NFA states: ");
-    scanf("%d", &nfa_states);
+int main()
+{
+    printf("Enter the number of NFA states:");
+    scanf("%d",&nfa_count);
 
-    printf("Enter number of input symbols: ");
-    scanf("%d", &symbols);
-
-    printf("Enter symbols (no spaces): ");
-    for (int i = 0; i < symbols; i++) {
-        scanf(" %c", &symbol[i]);
+    printf("Enter the number of input symbols:");
+    scanf("%d",&nfa_symbols);
+    printf("Enter symbols:");
+    for(int i=0;i<nfa_symbols;i++)
+    {
+        char s;
+        scanf(" %c",&s);
+        symbols[i]=s;
     }
 
-    // Initialize NFA transitions
-    memset(nfa, 0, sizeof(nfa));
-    for (int i = 0; i < nfa_states; i++) {
-        for (int j = 0; j < symbols; j++) {
-            int k, num;
-            printf("Enter number of transitions from state %d on symbol %c: ", i, symbol[j]);
-            scanf("%d", &num);
-            printf("Enter destination states: ");
-            for (k = 0; k < num; k++) {
-                int dest;
-                scanf("%d", &dest);
-                nfa[i][j][dest] = 1;
+    for (int i=0;i<nfa_count;i++)
+    {
+        for (int sym=0;sym<nfa_symbols;sym++)
+        {
+            int count=0;
+            printf("Enter number of transitions from state %d to symbol %d: ",i,sym);
+            scanf("%d",&count);
+
+            printf("Enter destination states:");
+            for (int j=0;j<count;j++)
+            {
+                int next;
+                scanf("%d",&next);
+                NFA[i][sym][next]=1;
             }
         }
     }
 
-    // Initialize DFA start state
-    int start[MAX_STATES] = {0};
-    start[0] = 1; // assuming state 0 is the start
-    add_state(start);
+    int start[MAX]={0};
+    start[0]=1;
+    addState(start);
 
-    // Subset construction
-    memset(marked, 0, sizeof(marked));
-    for (int i = 0; i < dfa_states_count; i++) {
-        marked[i] = 1;
-        for (int j = 0; j < symbols; j++) {
-            int new_state[MAX_STATES] = {0};
-            for (int k = 0; k < nfa_states; k++) {
-                if (dfa_states[i][k]) {
-                    for (int l = 0; l < nfa_states; l++) {
-                        if (nfa[k][j][l]) new_state[l] = 1;
+    memset(visited,0,sizeof(visited));
+
+    for (int i=0;i<dfa_count;i++)
+    {
+        if (visited[i])
+        {
+            continue;
+        }
+        visited[i] = 1;
+
+        for(int sym=0;sym<nfa_symbols;sym++)
+        {
+            int new_state[MAX]={0};
+            for (int s=0;s<nfa_count;s++)
+            {
+                if (DFA_states[i][s])
+                {
+                    for (int next=0;next<nfa_count;next++)
+                    {
+                        if (NFA[s][sym][next])
+                        {
+                            new_state[next]=1;
+                        }
                     }
                 }
             }
-            int index = state_exists(new_state, nfa_states);
-            if (index == -1) {
-                index = add_state(new_state);
+            int idx=findState(new_state);
+            if (idx==-1)
+            {
+                idx=addState(new_state);
             }
-            dfa[i][j] = index;
+
+            DFA[i][sym] = idx;
         }
     }
 
-    // Print DFA
-    printf("\nDFA Transition Table:\n");
-    printf("State\t");
-    for (int i = 0; i < symbols; i++) {
-        printf("%c\t", symbol[i]);
+    //Display
+    
+    printf("\nDFA Transition Table\n")
+    printf("States\t");
+    for (int i=0;i<nfa_symbols;i++)
+    {
+        printf("%c\t",symbols[i]);
     }
     printf("\n");
 
-    for (int i = 0; i < dfa_states_count; i++) {
+    for (int i=0;i<dfa_count;i++)
+    {
         printf("{");
-        for (int k = 0; k < nfa_states; k++) {
-            if (dfa_states[i][k]) printf("%d", k);
-        }
-        printf("}\t");
-        for (int j = 0; j < symbols; j++) {
-            printf("{");
-            for (int k = 0; k < nfa_states; k++) {
-                if (dfa_states[dfa[i][j]][k]) printf("%d", k);
+        for (int s=0;s<nfa_count;s++)
+        {
+            if (DFA_states[i][s])
+            {
+                printf("%d",s);
             }
-            printf("}\t");
+        }
+        printf("}\t\t");
+
+        for (int sym=0;sym<nfa_symbols;sym++)
+        {
+            printf("{");
+            for (int s=0;s<nfa_count;s++)
+            {
+                if (DFA_states[DFA[i][sym]][s])
+                {
+                    printf("%d",s);
+                }
+            }
+            printf("}\t\t");
         }
         printf("\n");
     }
 
     return 0;
 }
+
